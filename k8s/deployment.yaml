@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rmu-api-npcs
+  labels:
+    app: rmu-api-npcs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rmu-api-npcs
+  template:
+    metadata:
+      labels:
+        app: rmu-api-npcs
+    spec:
+      containers:
+      - name: rmu-api-npcs
+        image: labcabrera/rmu-api-npcs:latest
+        ports:
+        - containerPort: 3007
+        env:
+        - name: RMU_MONGO_npcs_URI
+          valueFrom:
+            configMapKeyRef:
+              name: rmu-shared-configmap
+              key: RMU_MONGO_npcs_URI
