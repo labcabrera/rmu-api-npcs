@@ -1,64 +1,68 @@
-import { Attack } from '../value-objects/attack.vo';
-import { Skill } from '../value-objects/skill.vo';
+import { AggregateRoot } from '@nestjs/cqrs';
+import { randomUUID } from 'crypto';
+import { DomainEvent } from '../../../shared/domain/events/domain-event';
+import { NpcCreatedEvent } from '../events/npc-created.event';
+import { NpcAttack } from '../value-objects/npc-attack.vo';
+import { NpcSkill } from '../value-objects/npc-skill.vo';
 
-type DomainEvent =
-  | { type: 'npc.created'; occurredAt: Date; payload: { id: string; name: string } }
-  | { type: 'npc.renamed'; occurredAt: Date; payload: { id: string; name: string } }
-  | { type: 'npc.skill.added'; occurredAt: Date; payload: { id: string; skill: { name: string; level: number } } };
+export interface NpcProps {
+  id: string;
+  name: string;
+  skills: NpcSkill[];
+  attacks: NpcAttack[];
+  owner: string;
+  createdAt: Date;
+  updatedAt: Date | undefined;
+}
 
-export class Npc {
-  private domainEvents: DomainEvent[] = [];
-
+export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
   private constructor(
     public readonly id: string,
-    private _name: string,
-    private _skills: Skill[],
-    private _attacks: Attack[],
-  ) {}
+    public name: string,
+    public skills: NpcSkill[],
+    public attacks: NpcAttack[],
+    public owner: string,
+    public createdAt: Date,
+    public updatedAt: Date | undefined,
+  ) {
+    super();
+  }
 
-  static create(props: { id: string; name: string; skills?: Skill[]; attacks?: Attack[] }): Npc {
-    if (!props.id?.trim()) throw new Error('Npc.id is required');
-    if (!props.name?.trim()) throw new Error('Npc.name is required');
-    const npc = new Npc(props.id, props.name.trim(), props.skills ?? [], props.attacks ?? []);
-    npc.addEvent({ type: 'npc.created', occurredAt: new Date(), payload: { id: npc.id, name: npc._name } });
+  static create(props: Omit<NpcProps, 'id' | 'createdAt' | 'updatedAt'>): Npc {
+    const npc = new Npc(
+      randomUUID(),
+      props.name,
+      props.skills ?? [],
+      props.attacks ?? [],
+      props.owner,
+      new Date(),
+      undefined,
+    );
+    npc.apply(new NpcCreatedEvent(npc.toProps()));
     return npc;
   }
 
-  get name() {
-    return this._name;
-  }
-  get skills(): readonly Skill[] {
-    return this._skills;
-  }
-  get attacks(): readonly Attack[] {
-    return this._attacks;
-  }
-
-  rename(newName: string) {
-    const nn = newName?.trim();
-    if (!nn) throw new Error('Npc.name is required');
-    if (nn !== this._name) {
-      this._name = nn;
-      this.addEvent({ type: 'npc.renamed', occurredAt: new Date(), payload: { id: this.id, name: this._name } });
-    }
+  static fromProps(props: NpcProps): Npc {
+    return new Npc(
+      props.id,
+      props.name,
+      props.skills ?? [],
+      props.attacks ?? [],
+      props.owner,
+      props.createdAt,
+      props.updatedAt,
+    );
   }
 
-  addSkill(skill: Skill) {
-    if (this._skills.some((s) => s.equals(skill))) throw new Error('Skill already exists');
-    this._skills.push(skill);
-    this.addEvent({
-      type: 'npc.skill.added',
-      occurredAt: new Date(),
-      payload: { id: this.id, skill: { name: skill.name, level: skill.level } },
-    });
-  }
-
-  pullEvents(): DomainEvent[] {
-    const e = [...this.domainEvents];
-    this.domainEvents = [];
-    return e;
-  }
-  private addEvent(evt: DomainEvent) {
-    this.domainEvents.push(evt);
+  toProps(): NpcProps {
+    return {
+      id: this.id,
+      name: this.name,
+      skills: this.skills,
+      attacks: this.attacks,
+      owner: this.owner,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    };
   }
 }

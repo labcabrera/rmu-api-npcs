@@ -1,36 +1,36 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
+import { MongooseModule } from '@nestjs/mongoose';
 import { TerminusModule } from '@nestjs/terminus';
 import { AuthModule } from 'src/modules/auth/auth.module';
-import { AddSkillHandler } from './application/commands/handlers/add-skill.handler';
-import { CreateNpcHandler } from './application/commands/handlers/create-npc.handler';
-import { NpcDomainEventsForwarder } from './application/events/handlers/npc-domain-events.forwarder';
-import { GetNpcByIdHandler } from './application/queries/handlers/get-npc-by-id.handler';
+import { AddSkillHandler } from './application/cqrs/handlers/add-skill.handler';
+import { CreateNpcHandler } from './application/cqrs/handlers/create-npc.handler';
+import { GetNpcHandler } from './application/cqrs/handlers/get-npc.handler';
+import { Npc } from './domain/aggregates/npc.aggregate';
+import { MongoNpcRepository } from './infrastructure/db/mongo.npc.repository';
 import { KafkaEventBus } from './infrastructure/messaging/kafka.event-bus';
-import { MongooseNpcRepository } from './infrastructure/persistence/npc.repository.mongoose';
+import { NpcSchema } from './infrastructure/persistence/models/npc.model';
 
 const CommandHandlers = [CreateNpcHandler, AddSkillHandler];
-const QueryHandlers = [GetNpcByIdHandler];
-const EventHandlers = [NpcDomainEventsForwarder];
+const QueryHandlers = [GetNpcHandler];
 
 @Module({
   imports: [
     TerminusModule,
     CqrsModule,
     ConfigModule,
-    //MongooseModule.forFeature([{ name: GameModel.name, schema: GameSchema }]),
+    MongooseModule.forFeature([{ name: Npc.name, schema: NpcSchema }]),
     AuthModule,
   ],
   controllers: [],
   providers: [
     ...CommandHandlers,
     ...QueryHandlers,
-    ...EventHandlers,
     KafkaEventBus,
     {
       provide: 'NpcRepository',
-      useClass: MongooseNpcRepository,
+      useClass: MongoNpcRepository,
     },
   ],
   exports: [],
