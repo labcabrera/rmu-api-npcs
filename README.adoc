@@ -12,8 +12,6 @@ image:https://img.shields.io/badge/NestJS-11.0.1-green?logo=nestjs[NestJS, link=
 </a>
 ++++
 
-TODO
-
 This project is part of RMU Online: https://github.com/labcabrera/rmu-platform
 
 WARNING: *This application is an independent project developed by fans of Rolemaster Unified. It is not affiliated with, endorsed by, or licensed by Iron Crown Enterprises (ICE), the owners of the Rolemaster intellectual property.*

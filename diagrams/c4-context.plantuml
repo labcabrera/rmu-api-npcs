@@ -1,5 +1,5 @@
-@startuml C4 Context Tactical API
-title C4 Context Tactical API
+@startuml C4 Context RMU Engine NPCs API
+title C4 Context RMU Engine NPCs API
 
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
@@ -12,14 +12,15 @@ UpdateElementStyle(boundary, $bgColor="#d1dcdfff")
 
 Person(user, "User")
 
-Boundary(frontend, "RMO Frontend") {
-    System_Ext(rmu_fe_host, "RMO Frontend Host", "Node.js / JS")
-    System_Ext(rmu_fe_tactical, "Tactical microfrontend", "Node / TS")
+Boundary(frontend, "RMU Engine Microfrontends") {
+    System_Ext(rmu_mfe_shell, "MFE Shell", "React")
+    System_Ext(rmu_mfe_npcs, "MFE NPCs", "React")
 }
 
-Boundary(apis, "RMO APIs") {
-    System_Ext(rmu_api_core, "Core API", "Node / NestJS")
-    System(rmu_api_tactical, "Tactical API", "Node / NestJS")
+Boundary(apis, "RMU Engine APIs") {
+    System(rmu_api_npcs, "NPCs API", "NestJS")
+    System_Ext(rmu_api_strategic, "API Strategic", "NestJS")
+    System_Ext(rmu_api_tactical, "API Tactical", "NestJS")
 }
 
 Boundary(infrastructure, "Infrastructure") {
@@ -28,21 +29,20 @@ Boundary(infrastructure, "Infrastructure") {
     System_Ext(kafka, "Kafka", "3.4")
 }
 
-Rel(user, rmu_fe_host, "Navigate", "HTTP")
+Rel(user, rmu_mfe_shell, "Navigate", "HTTP")
 Rel(user, keycloak, "Login", "HTTP")
 
-Rel(rmu_fe_host, rmu_fe_tactical, "Load tactical microfrontend", "Module federation")
-Rel(rmu_fe_host, keycloak, "Authenticate user", "OIDC")
+Rel(rmu_mfe_shell, rmu_mfe_npcs, "Federation", "Webpack")
+Rel(rmu_mfe_shell, keycloak, "Authenticate user", "OIDC")
 
-Rel(rmu_fe_tactical, rmu_api_tactical, "Fetch data", "HTTP / JWT")
+Rel(rmu_mfe_npcs, rmu_api_npcs, "Fetch data", "HTTP / JWT")
 
-Rel(rmu_api_tactical, rmu_api_core, "Fetch data", "HTTP / Client credentials")
+Rel(rmu_api_npcs, mongodb, "R/W", "Mongoose")
+Rel(rmu_api_npcs, keycloak, "Read JWK", "HTTP")
+BiRel(rmu_api_npcs, kafka, "Publish / Consume", "")
 
-Rel(rmu_api_tactical, keycloak, "Request token", "Client credentials")
-
-Rel(rmu_api_tactical, mongodb, "Read / Write data", "mongoose")
-
-BiRel(rmu_api_tactical, kafka, "Publish / Consume events", "")
+Rel(rmu_api_strategic, rmu_api_npcs, "Fetch data", "HTTP / JWT")
+Rel(rmu_api_tactical, rmu_api_npcs, "Fetch data", "HTTP / JWT")
 
 SHOW_LEGEND()
 
