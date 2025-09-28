@@ -29,12 +29,17 @@ export class CreateNpcDto {
   @ApiProperty({ description: 'Defensive bonus', example: 10, default: 0 })
   @IsNumber()
   @IsOptional()
-  db: number | undefined;
+  bd: number | undefined;
 
   @ApiProperty({ description: 'Armor type', example: 5, minimum: 1, maximum: 10, default: 1 })
   @IsNumber()
   @IsOptional()
   at: number | undefined;
+
+  @ApiProperty({ description: 'Initiative of the NPC', example: 5, default: 1 })
+  @IsNumber()
+  @IsOptional()
+  initiative: number | undefined;
 
   @ApiProperty({ description: 'Skills of the NPC', type: [NpcSkillDto] })
   @IsArray()
@@ -67,8 +72,9 @@ export class CreateNpcDto {
       dto.category,
       dto.name,
       dto.level,
-      dto.db,
+      dto.bd,
       dto.at,
+      dto.initiative,
       dto.skills ? dto.skills.map((skill) => NpcSkillDto.toDomain(skill)) : [],
       dto.items ? dto.items.map((item) => NpcItemDto.toDomain(item)) : [],
       dto.attacks ? dto.attacks.map((attack) => NpcAttackDto.toDomain(attack)) : [],

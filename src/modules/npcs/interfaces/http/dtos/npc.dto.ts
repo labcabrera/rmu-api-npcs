@@ -23,10 +23,13 @@ export class NpcDto {
   level: number;
 
   @ApiProperty({ description: 'Defensive bonus', example: 10 })
-  db: number;
+  bd: number;
 
   @ApiProperty({ description: 'Armor type', example: 5 })
   at: number;
+
+  @ApiProperty({ description: 'NPC initiative', example: 5 })
+  initiative: number;
 
   @ApiProperty({ type: [NpcSkillDto], description: 'NPC skills' })
   skills: NpcSkillDto[];
@@ -53,8 +56,9 @@ export class NpcDto {
       realmId: entity.realmId,
       name: entity.name,
       level: entity.level,
-      db: entity.db,
+      bd: entity.bd,
       at: entity.at,
+      initiative: entity.initiative,
       skills: entity.skills,
       items: entity.items,
       attacks: entity.attacks,

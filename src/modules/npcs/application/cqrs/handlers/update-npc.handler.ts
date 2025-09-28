@@ -21,6 +21,9 @@ export class UpdateNpcHandler implements ICommandHandler<UpdateNpcCommand, Npc> 
     npc.update({
       name: command.name,
       level: command.level,
+      bd: command.bd,
+      at: command.at,
+      initiative: command.initiative,
       skills: command.skills,
       attacks: command.attacks,
     });

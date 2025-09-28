@@ -26,10 +26,13 @@ export class NpcModel {
   level: number;
 
   @Prop({ required: true })
-  db: number;
+  bd: number;
 
   @Prop({ required: true })
   at: number;
+
+  @Prop({ required: true })
+  initiative: number;
 
   @Prop({ type: [NpcSkill], required: true })
   skills: NpcSkill[];
