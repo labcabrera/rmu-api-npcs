@@ -38,7 +38,7 @@ function configureOpenApi(app: INestApplication<any>) {
       },
       'access-token',
     )
-    .addServer('http://localhost:3007', 'Local development server')
+    .addServer('http://localhost:3008', 'Local development server')
     .build();
   const document = SwaggerModule.createDocument(app, openApiConfig);
   SwaggerModule.setup('api-docs', app, document, {
