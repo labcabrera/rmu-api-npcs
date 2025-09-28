@@ -58,6 +58,7 @@ export class MongoNpcRepository implements NpcRepository {
   private mapToEntity(doc: NpcDocument): Npc {
     return Npc.fromProps({
       id: doc.id as string,
+      realmId: doc.realmId,
       name: doc.name,
       level: doc.level,
       skills: doc.skills,

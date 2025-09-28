@@ -5,6 +5,11 @@ import { NpcAttackDto } from './npc-attack.dto';
 import { NpcSkillDto } from './npc-skill.dto';
 
 export class CreateNpcDto {
+  @ApiProperty({ description: 'Realm identifier', example: 'realm-123' })
+  @IsString()
+  @IsNotEmpty()
+  realmId: string;
+
   @ApiProperty({ description: 'Name of the NPC', example: 'Wolf lvl 1' })
   @IsString()
   @IsNotEmpty()
@@ -25,6 +30,6 @@ export class CreateNpcDto {
   static toCommand(dto: CreateNpcDto, userId: string, roles: string[]): CreateNpcCommand {
     const skills = dto.skills.map((skill) => NpcSkillDto.toDomain(skill));
     const attacks = dto.attacks.map((attack) => NpcAttackDto.toDomain(attack));
-    return new CreateNpcCommand(dto.name, dto.level, skills, attacks, userId, roles);
+    return new CreateNpcCommand(dto.realmId, dto.name, dto.level, skills, attacks, userId, roles);
   }
 }

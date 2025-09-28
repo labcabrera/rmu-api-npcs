@@ -12,6 +12,9 @@ export class NpcModel {
   _id: string;
 
   @Prop({ required: true })
+  realmId: string;
+
+  @Prop({ required: true })
   name: string;
 
   @Prop({ required: true })

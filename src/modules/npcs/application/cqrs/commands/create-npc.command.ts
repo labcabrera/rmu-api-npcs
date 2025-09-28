@@ -3,6 +3,7 @@ import { NpcSkill } from '../../../domain/value-objects/npc-skill.vo';
 
 export class CreateNpcCommand {
   constructor(
+    public readonly realmId: string,
     public readonly name: string,
     public readonly level: number,
     public readonly skills: NpcSkill[],

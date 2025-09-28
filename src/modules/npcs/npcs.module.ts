@@ -4,7 +4,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TerminusModule } from '@nestjs/terminus';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { SharedModule } from '../shared/shared.module';
-import { AddSkillHandler } from './application/cqrs/handlers/add-skill.handler';
 import { CreateNpcHandler } from './application/cqrs/handlers/create-npc.handler';
 import { DeleteNpcHandler } from './application/cqrs/handlers/delete-npc.handler';
 import { GetNpcHandler } from './application/cqrs/handlers/get-npc.handler';
@@ -15,7 +14,7 @@ import { KafkaNpcEventBusAdapter } from './infrastructure/messaging/kafka.npc-ev
 import { NpcModel, NpcSchema } from './infrastructure/persistence/models/npc.model';
 import { NpcController } from './interfaces/http/npc.controller';
 
-const CommandHandlers = [CreateNpcHandler, AddSkillHandler, UpdateNpcHandler, DeleteNpcHandler];
+const CommandHandlers = [CreateNpcHandler, UpdateNpcHandler, DeleteNpcHandler];
 const QueryHandlers = [GetNpcHandler, GetNpcsHandler];
 
 @Module({

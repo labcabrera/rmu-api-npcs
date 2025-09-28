@@ -8,6 +8,7 @@ import { NpcSkill } from '../value-objects/npc-skill.vo';
 
 export interface NpcProps {
   id: string;
+  realmId: string;
   name: string;
   level: number;
   skills: NpcSkill[];
@@ -20,6 +21,7 @@ export interface NpcProps {
 export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
   private constructor(
     public readonly id: string,
+    public readonly realmId: string,
     public name: string,
     public level: number,
     public skills: NpcSkill[],
@@ -34,6 +36,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
   static create(props: Omit<NpcProps, 'id' | 'createdAt' | 'updatedAt'>): Npc {
     const npc = new Npc(
       randomUUID(),
+      props.realmId,
       props.name,
       props.level,
       props.skills ?? [],
@@ -46,7 +49,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     return npc;
   }
 
-  update(props: Partial<Omit<NpcProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
+  update(props: Partial<Omit<NpcProps, 'id' | 'realmId' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
     const { name, level, skills, attacks } = props;
     if (name) this.name = name;
     if (level) this.level = level;
@@ -59,6 +62,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
   static fromProps(props: NpcProps): Npc {
     return new Npc(
       props.id,
+      props.realmId,
       props.name,
       props.level,
       props.skills ?? [],
@@ -72,6 +76,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
   toProps(): NpcProps {
     return {
       id: this.id,
+      realmId: this.realmId,
       name: this.name,
       level: this.level,
       skills: this.skills,

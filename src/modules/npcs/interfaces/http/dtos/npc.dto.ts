@@ -8,6 +8,9 @@ export class NpcDto {
   @ApiProperty({ description: 'NPC unique identifier', example: 'npc-123' })
   id: string;
 
+  @ApiProperty({ description: 'Realm identifier', example: 'realm-789' })
+  realmId: string;
+
   @ApiProperty({ description: 'NPC name', example: 'Goblin Warrior' })
   name: string;
 
@@ -26,6 +29,7 @@ export class NpcDto {
   static fromEntity(entity: Npc): NpcDto {
     return {
       id: entity.id,
+      realmId: entity.realmId,
       name: entity.name,
       level: entity.level,
       skills: entity.skills,
