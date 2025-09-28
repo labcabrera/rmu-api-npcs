@@ -4,6 +4,7 @@ import { DomainEvent } from '../../../shared/domain/events/domain-event';
 import { NpcCreatedEvent } from '../events/npc-created.event';
 import { NpcUpdatedEvent } from '../events/npc-updated.event';
 import { NpcAttack } from '../value-objects/npc-attack.vo';
+import { NpcItem } from '../value-objects/npc-item.vo';
 import { NpcSkill } from '../value-objects/npc-skill.vo';
 
 export interface NpcProps {
@@ -11,7 +12,10 @@ export interface NpcProps {
   realmId: string;
   name: string;
   level: number;
+  db: number;
+  at: number;
   skills: NpcSkill[];
+  items: NpcItem[];
   attacks: NpcAttack[];
   description: string | undefined;
   imageUrl: string | undefined;
@@ -26,7 +30,10 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     public readonly realmId: string,
     public name: string,
     public level: number,
+    public db: number,
+    public at: number,
     public skills: NpcSkill[],
+    public items: NpcItem[],
     public attacks: NpcAttack[],
     public description: string | undefined,
     public imageUrl: string | undefined,
@@ -43,7 +50,10 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       props.realmId,
       props.name,
       props.level,
+      props.db,
+      props.at,
       props.skills ?? [],
+      props.items ?? [],
       props.attacks ?? [],
       props.description,
       props.imageUrl,
@@ -71,7 +81,10 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       props.realmId,
       props.name,
       props.level,
+      props.db,
+      props.at,
       props.skills ?? [],
+      props.items ?? [],
       props.attacks ?? [],
       props.description,
       props.imageUrl,
@@ -87,7 +100,10 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       realmId: this.realmId,
       name: this.name,
       level: this.level,
+      db: this.db,
+      at: this.at,
       skills: this.skills,
+      items: this.items,
       attacks: this.attacks,
       description: this.description,
       imageUrl: this.imageUrl,

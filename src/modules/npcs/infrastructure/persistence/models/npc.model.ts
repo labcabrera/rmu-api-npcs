@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
 import { NpcAttack } from './npc-attack.model';
+import { NpcItem } from './npc-item';
 import { NpcSkill } from './npc-skill.model';
 
 export type NpcDocument = Npc & Document;
@@ -20,8 +21,17 @@ export class NpcModel {
   @Prop({ required: true })
   level: number;
 
+  @Prop({ required: true })
+  db: number;
+
+  @Prop({ required: true })
+  at: number;
+
   @Prop({ type: [NpcSkill], required: true })
   skills: NpcSkill[];
+
+  @Prop({ type: [NpcItem], required: true })
+  items: NpcItem[];
 
   @Prop({ type: [NpcAttack], required: true })
   attacks: NpcAttack[];
