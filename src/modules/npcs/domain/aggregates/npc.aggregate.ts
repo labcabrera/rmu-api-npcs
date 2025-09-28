@@ -6,16 +6,18 @@ import { NpcUpdatedEvent } from '../events/npc-updated.event';
 import { NpcAttack } from '../value-objects/npc-attack.vo';
 import { NpcCategory } from '../value-objects/npc-category.vo';
 import { NpcItem } from '../value-objects/npc-item.vo';
+import { NpcOutlookType } from '../value-objects/npc-outlook-type.dto';
 import { NpcSkill } from '../value-objects/npc-skill.vo';
 
 export interface NpcProps {
   id: string;
   realmId: string;
   category: NpcCategory;
+  outlookType: NpcOutlookType;
   name: string;
   level: number;
   hp: number;
-  bd: number;
+  db: number;
   at: number;
   initiative: number;
   skills: NpcSkill[];
@@ -33,10 +35,11 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     public readonly id: string,
     public readonly realmId: string,
     public category: NpcCategory,
+    public outlookType: NpcOutlookType,
     public name: string,
     public level: number,
     public hp: number,
-    public bd: number,
+    public db: number,
     public at: number,
     public initiative: number,
     public skills: NpcSkill[],
@@ -56,10 +59,11 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       randomUUID(),
       props.realmId,
       props.category,
+      props.outlookType,
       props.name,
       props.level,
       props.hp,
-      props.bd,
+      props.db,
       props.at,
       props.initiative,
       props.skills ?? [],
@@ -76,11 +80,12 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
   }
 
   update(props: Partial<Omit<NpcProps, 'id' | 'realmId' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
-    const { name, level, hp, bd, at, initiative, skills, attacks, description, imageUrl } = props;
+    const { outlookType, name, level, hp, db, at, initiative, skills, attacks, description, imageUrl } = props;
+    if (outlookType) this.outlookType = outlookType;
     if (name) this.name = name;
     if (level) this.level = level;
-    if (hp) this.hp = hp;
-    if (bd) this.bd = bd;
+    if (hp) this.db = hp;
+    if (db) this.db = db;
     if (at) this.at = at;
     if (initiative) this.initiative = initiative;
     if (skills) this.skills = skills;
@@ -96,10 +101,11 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       props.id,
       props.realmId,
       props.category,
+      props.outlookType,
       props.name,
       props.level,
       props.hp,
-      props.bd,
+      props.db,
       props.at,
       props.initiative,
       props.skills ?? [],
@@ -118,10 +124,11 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       id: this.id,
       realmId: this.realmId,
       category: this.category,
+      outlookType: this.outlookType,
       name: this.name,
       level: this.level,
       hp: this.hp,
-      bd: this.bd,
+      db: this.db,
       at: this.at,
       initiative: this.initiative,
       skills: this.skills,

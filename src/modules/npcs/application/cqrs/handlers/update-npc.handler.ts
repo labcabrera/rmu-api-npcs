@@ -19,10 +19,11 @@ export class UpdateNpcHandler implements ICommandHandler<UpdateNpcCommand, Npc> 
       throw new NotFoundError('NPC', command.id);
     }
     npc.update({
+      outlookType: command.outlookType,
       name: command.name,
       level: command.level,
       hp: command.hp,
-      bd: command.bd,
+      db: command.db,
       at: command.at,
       initiative: command.initiative,
       skills: command.skills,

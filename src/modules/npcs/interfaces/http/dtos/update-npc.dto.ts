@@ -2,9 +2,14 @@ import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 import { UpdateNpcCommand } from '../../../application/cqrs/commands/update-npc.command';
 import { NpcAttack } from '../../../domain/value-objects/npc-attack.vo';
 import { NpcItem } from '../../../domain/value-objects/npc-item.vo';
+import { NpcOutlookType } from '../../../domain/value-objects/npc-outlook-type.dto';
 import { NpcSkill } from '../../../domain/value-objects/npc-skill.vo';
 
 export class UpdateNpcDto {
+  @IsString()
+  @IsOptional()
+  outlookType: NpcOutlookType | undefined;
+
   @IsString()
   @IsOptional()
   name: string | undefined;
@@ -19,7 +24,7 @@ export class UpdateNpcDto {
 
   @IsNumber()
   @IsOptional()
-  bd: number | undefined;
+  db: number | undefined;
 
   @IsNumber()
   @IsOptional()
@@ -52,10 +57,11 @@ export class UpdateNpcDto {
   static toCommand(id: string, dto: UpdateNpcDto, userId: string, roles: string[]): UpdateNpcCommand {
     return new UpdateNpcCommand(
       id,
+      dto.outlookType,
       dto.name,
       dto.level,
       dto.hp,
-      dto.bd,
+      dto.db,
       dto.at,
       dto.initiative,
       dto.skills,

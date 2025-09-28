@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { CreateNpcCommand } from '../../../application/cqrs/commands/create-npc.command';
 import type { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
+import type { NpcOutlookType } from '../../../domain/value-objects/npc-outlook-type.dto';
 import { NpcAttackDto } from './npc-attack.dto';
 import { NpcItemDto } from './npc-item.dto';
 import { NpcSkillDto } from './npc-skill.dto';
@@ -16,6 +17,11 @@ export class CreateNpcDto {
   @IsString()
   @IsNotEmpty()
   category: NpcCategory;
+
+  @ApiProperty({ description: 'Outlook type of the NPC', example: 'goblin' })
+  @IsString()
+  @IsNotEmpty()
+  outlookType: NpcOutlookType;
 
   @ApiProperty({ description: 'Name of the NPC', example: 'Wolf lvl 1' })
   @IsString()
@@ -34,7 +40,7 @@ export class CreateNpcDto {
   @ApiProperty({ description: 'Defensive bonus', example: 10, default: 0 })
   @IsNumber()
   @IsOptional()
-  bd: number | undefined;
+  db: number | undefined;
 
   @ApiProperty({ description: 'Armor type', example: 5, minimum: 1, maximum: 10, default: 1 })
   @IsNumber()
@@ -75,10 +81,11 @@ export class CreateNpcDto {
     return new CreateNpcCommand(
       dto.realmId,
       dto.category,
+      dto.outlookType,
       dto.name,
       dto.level,
       dto.hp,
-      dto.bd,
+      dto.db,
       dto.at,
       dto.initiative,
       dto.skills ? dto.skills.map((skill) => NpcSkillDto.toDomain(skill)) : [],

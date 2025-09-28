@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
 import type { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
+import type { NpcOutlookType } from '../../../domain/value-objects/npc-outlook-type.dto';
 import { NpcAttack } from './npc-attack.model';
 import { NpcItem } from './npc-item';
 import { NpcSkill } from './npc-skill.model';
@@ -19,6 +20,9 @@ export class NpcModel {
   @Prop({ type: String, required: true })
   category: NpcCategory;
 
+  @Prop({ type: String, required: true })
+  outlookType: NpcOutlookType;
+
   @Prop({ required: true })
   name: string;
 
@@ -29,7 +33,7 @@ export class NpcModel {
   hp: number;
 
   @Prop({ required: true })
-  bd: number;
+  db: number;
 
   @Prop({ required: true })
   at: number;

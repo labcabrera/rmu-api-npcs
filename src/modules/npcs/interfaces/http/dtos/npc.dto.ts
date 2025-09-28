@@ -26,7 +26,7 @@ export class NpcDto {
   hp: number;
 
   @ApiProperty({ description: 'Defensive bonus', example: 10 })
-  bd: number;
+  db: number;
 
   @ApiProperty({ description: 'Armor type', example: 5 })
   at: number;
@@ -60,7 +60,7 @@ export class NpcDto {
       name: entity.name,
       level: entity.level,
       hp: entity.hp,
-      bd: entity.bd,
+      db: entity.db,
       at: entity.at,
       initiative: entity.initiative,
       skills: entity.skills,

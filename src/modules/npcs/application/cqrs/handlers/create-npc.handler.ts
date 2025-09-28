@@ -16,10 +16,11 @@ export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> 
     const npc = Npc.create({
       realmId: command.realmId,
       category: command.category,
+      outlookType: command.outlookType,
       name: command.name,
       level: command.level,
       hp: command.hp,
-      bd: command.bd || 0,
+      db: command.db || 0,
       at: command.at || 1,
       initiative: command.initiative || 0,
       skills: command.skills || [],
