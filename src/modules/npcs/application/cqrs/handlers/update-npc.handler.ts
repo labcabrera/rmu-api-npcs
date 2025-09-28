@@ -26,6 +26,8 @@ export class UpdateNpcHandler implements ICommandHandler<UpdateNpcCommand, Npc> 
       initiative: command.initiative,
       skills: command.skills,
       attacks: command.attacks,
+      description: command.description,
+      imageUrl: command.imageUrl,
     });
     const saved = await this.repo.update(npc.id, npc);
     npc.getUncommittedEvents().forEach((event) => this.eventBus.publish(event));

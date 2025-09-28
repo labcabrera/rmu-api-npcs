@@ -37,6 +37,14 @@ export class UpdateNpcDto {
   @IsOptional()
   attacks: NpcAttack[] | undefined;
 
+  @IsString()
+  @IsOptional()
+  description: string | undefined;
+
+  @IsString()
+  @IsOptional()
+  imageUrl: string | undefined;
+
   static toCommand(id: string, dto: UpdateNpcDto, userId: string, roles: string[]): UpdateNpcCommand {
     return new UpdateNpcCommand(
       id,
@@ -48,6 +56,8 @@ export class UpdateNpcDto {
       dto.skills,
       dto.items,
       dto.attacks,
+      dto.description,
+      dto.imageUrl,
       userId,
       roles,
     );
