@@ -1,6 +1,7 @@
 import { Inject } from '@nestjs/common';
-import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
+import type { NpcEventBusPort } from '../../ports/npc-event-bus.port';
 import type { NpcRepository } from '../../ports/npc.repository';
 import { CreateNpcCommand } from '../commands/create-npc.command';
 
@@ -8,7 +9,7 @@ import { CreateNpcCommand } from '../commands/create-npc.command';
 export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> {
   constructor(
     @Inject('NpcRepository') private readonly repo: NpcRepository,
-    private readonly eventBus: EventBus,
+    @Inject('NpcEventBus') private readonly eventBus: NpcEventBusPort,
   ) {}
 
   async execute(command: CreateNpcCommand): Promise<Npc> {
@@ -20,7 +21,7 @@ export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> 
       owner: command.userId,
     });
     const saved = await this.repo.save(npc);
-    //TODO propagate events
+    npc.getUncommittedEvents().forEach((event) => this.eventBus.publish(event));
     return saved;
   }
 }

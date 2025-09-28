@@ -10,7 +10,7 @@ import { DeleteNpcHandler } from './application/cqrs/handlers/delete-npc.handler
 import { GetNpcHandler } from './application/cqrs/handlers/get-npc.handler';
 import { GetNpcsHandler } from './application/cqrs/handlers/get-npcs.handler';
 import { MongoNpcRepository } from './infrastructure/db/mongo.npc.repository';
-import { KafkaEventBus } from './infrastructure/messaging/kafka.event-bus';
+import { KafkaNpcEventBusAdapter } from './infrastructure/messaging/kafka.npc-event-bus.adapter';
 import { NpcModel, NpcSchema } from './infrastructure/persistence/models/npc.model';
 import { NpcController } from './interfaces/http/npc.controller';
 
@@ -29,10 +29,13 @@ const QueryHandlers = [GetNpcHandler, GetNpcsHandler];
   providers: [
     ...CommandHandlers,
     ...QueryHandlers,
-    KafkaEventBus,
     {
       provide: 'NpcRepository',
       useClass: MongoNpcRepository,
+    },
+    {
+      provide: 'NpcEventBus',
+      useClass: KafkaNpcEventBusAdapter,
     },
   ],
   exports: [],
