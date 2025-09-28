@@ -7,21 +7,20 @@ export class DomainError extends Error {
     this.name = 'DomainError';
   }
 }
+
+export class ForbiddenError extends DomainError {
+  constructor(message: string) {
+    super(message, 403);
+    this.name = 'ForbiddenError';
+    Object.setPrototypeOf(this, ForbiddenError.prototype);
+  }
+}
+
 export class NotFoundError extends DomainError {
   constructor(entity: string, id: number | string) {
     super(`${entity} ${id} not found`, 404);
     this.name = 'NotFoundError';
     Object.setPrototypeOf(this, NotFoundError.prototype);
-  }
-}
-
-export class UnprocessableEntityError extends DomainError {
-  public readonly status: number = 422;
-
-  constructor(message: string) {
-    super(message, 422);
-    this.name = 'UnprocessableEntityError';
-    Object.setPrototypeOf(this, UnprocessableEntityError.prototype);
   }
 }
 

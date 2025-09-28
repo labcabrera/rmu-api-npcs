@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TerminusModule } from '@nestjs/terminus';
 import { AuthModule } from 'src/modules/auth/auth.module';
+import { SharedModule } from '../shared/shared.module';
 import { AddSkillHandler } from './application/cqrs/handlers/add-skill.handler';
 import { CreateNpcHandler } from './application/cqrs/handlers/create-npc.handler';
 import { GetNpcHandler } from './application/cqrs/handlers/get-npc.handler';
@@ -19,9 +19,9 @@ const QueryHandlers = [GetNpcHandler];
   imports: [
     TerminusModule,
     CqrsModule,
-    ConfigModule,
     MongooseModule.forFeature([{ name: Npc.name, schema: NpcSchema }]),
     AuthModule,
+    SharedModule,
   ],
   controllers: [],
   providers: [

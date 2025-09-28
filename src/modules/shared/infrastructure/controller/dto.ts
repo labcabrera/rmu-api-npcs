@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Min } from 'class-validator';
@@ -14,7 +15,12 @@ export class ErrorDto {
 }
 
 export class PagedQueryDto {
-  @ApiPropertyOptional({ description: 'RSQL search expression', example: 'name=re=lord', type: String, required: false })
+  @ApiPropertyOptional({
+    description: 'RSQL search expression',
+    example: 'name=re=lord',
+    type: String,
+    required: false,
+  })
   @IsString()
   @IsOptional()
   q: string | undefined;

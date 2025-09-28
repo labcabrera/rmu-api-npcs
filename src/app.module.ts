@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import * as Joi from 'joi';
-
+import Joi from 'joi';
 import { AuthModule } from './modules/auth/auth.module';
 import { NpcsModule } from './modules/npcs/npcs.module';
 import { SharedModule } from './modules/shared/shared.module';
@@ -32,8 +31,8 @@ import { SharedModule } from './modules/shared/shared.module';
       }),
       inject: [ConfigService],
     }),
-    SharedModule,
     AuthModule,
+    SharedModule,
     NpcsModule,
   ],
 })
