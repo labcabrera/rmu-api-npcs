@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Body, Controller, Get, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ApiBody,
@@ -15,6 +15,7 @@ import { JwtAuthGuard } from 'src/modules/auth/jwt.auth.guard';
 import { Page } from '../../../shared/domain/entities/page.entity';
 import { ErrorDto, PagedQueryDto } from '../../../shared/infrastructure/controller/dto';
 import { CreateNpcCommand } from '../../application/cqrs/commands/create-npc.command';
+import { DeleteNpcCommand } from '../../application/cqrs/commands/delete-npc.command';
 import { GetNpcQuery } from '../../application/cqrs/queries/get-npc.query';
 import { GetNpcsQuery } from '../../application/cqrs/queries/get-npcs.query';
 import { Npc } from '../../domain/aggregates/npc.aggregate';
@@ -82,14 +83,15 @@ export class NpcController {
   //   return NpcDto.fromEntity(entity);
   // }
 
-  // @Delete(':id')
-  // @HttpCode(204)
-  // @ApiOperation({ operationId: 'deleteNpc', summary: 'Delete Npc by id' })
-  // @ApiUnauthorizedResponse({ description: 'Invalid or missing authentication token', type: ErrorDto })
-  // @ApiNotFoundResponse({ description: 'Npc not found', type: ErrorDto })
-  // async delete(@Param('id') id: string, @Request() req) {
-  //   const user = req.user!;
-  //   const command = new DeleteNpcCommand(id, undefined, user.id as string, user.roles! as string[]);
-  //   await this.commandBus.execute(command);
-  // }
+  @Delete(':id')
+  @HttpCode(204)
+  @ApiOperation({ operationId: 'deleteNpc', summary: 'Delete NPC by id' })
+  @ApiUnauthorizedResponse({ description: 'Invalid or missing authentication token', type: ErrorDto })
+  @ApiNotFoundResponse({ description: 'Npc not found', type: ErrorDto })
+  async delete(@Param('id') id: string, @Request() req) {
+    const user = req.user! as string;
+    const roles: string[] = req.user!.roles as string[];
+    const command = new DeleteNpcCommand(id, user, roles);
+    await this.commandBus.execute(command);
+  }
 }
