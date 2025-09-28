@@ -4,12 +4,14 @@ import { DomainEvent } from '../../../shared/domain/events/domain-event';
 import { NpcCreatedEvent } from '../events/npc-created.event';
 import { NpcUpdatedEvent } from '../events/npc-updated.event';
 import { NpcAttack } from '../value-objects/npc-attack.vo';
+import { NpcCategory } from '../value-objects/npc-category.vo';
 import { NpcItem } from '../value-objects/npc-item.vo';
 import { NpcSkill } from '../value-objects/npc-skill.vo';
 
 export interface NpcProps {
   id: string;
   realmId: string;
+  category: NpcCategory;
   name: string;
   level: number;
   db: number;
@@ -28,6 +30,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
   private constructor(
     public readonly id: string,
     public readonly realmId: string,
+    public category: NpcCategory,
     public name: string,
     public level: number,
     public db: number,
@@ -48,6 +51,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     const npc = new Npc(
       randomUUID(),
       props.realmId,
+      props.category,
       props.name,
       props.level,
       props.db,
@@ -79,6 +83,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     return new Npc(
       props.id,
       props.realmId,
+      props.category,
       props.name,
       props.level,
       props.db,
@@ -98,6 +103,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     return {
       id: this.id,
       realmId: this.realmId,
+      category: this.category,
       name: this.name,
       level: this.level,
       db: this.db,

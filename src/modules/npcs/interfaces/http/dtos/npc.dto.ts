@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PaginationDto } from '../../../../shared/infrastructure/controller/dto';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
+import type { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
 import { NpcAttackDto } from './npc-attack.dto';
 import { NpcItemDto } from './npc-item.dto';
 import { NpcSkillDto } from './npc-skill.dto';
@@ -11,6 +12,9 @@ export class NpcDto {
 
   @ApiProperty({ description: 'Realm identifier', example: 'realm-789' })
   realmId: string;
+
+  @ApiProperty({ description: 'NPC category', example: 'humanoid' })
+  category: NpcCategory;
 
   @ApiProperty({ description: 'NPC name', example: 'Goblin Warrior' })
   name: string;
@@ -45,6 +49,7 @@ export class NpcDto {
   static fromEntity(entity: Npc): NpcDto {
     return {
       id: entity.id,
+      category: entity.category,
       realmId: entity.realmId,
       name: entity.name,
       level: entity.level,

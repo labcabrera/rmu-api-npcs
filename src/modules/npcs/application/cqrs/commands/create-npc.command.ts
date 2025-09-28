@@ -1,10 +1,12 @@
 import { NpcAttack } from '../../../domain/value-objects/npc-attack.vo';
+import { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
 import { NpcItem } from '../../../domain/value-objects/npc-item.vo';
 import { NpcSkill } from '../../../domain/value-objects/npc-skill.vo';
 
 export class CreateNpcCommand {
   constructor(
     public readonly realmId: string,
+    public readonly category: NpcCategory,
     public readonly name: string,
     public readonly level: number,
     public readonly db: number | undefined,

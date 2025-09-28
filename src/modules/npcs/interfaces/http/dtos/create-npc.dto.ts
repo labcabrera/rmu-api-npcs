@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { CreateNpcCommand } from '../../../application/cqrs/commands/create-npc.command';
+import type { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
 import { NpcAttackDto } from './npc-attack.dto';
 import { NpcItemDto } from './npc-item.dto';
 import { NpcSkillDto } from './npc-skill.dto';
@@ -10,6 +11,11 @@ export class CreateNpcDto {
   @IsString()
   @IsNotEmpty()
   realmId: string;
+
+  @ApiProperty({ description: 'Category of the NPC', example: 'humanoid' })
+  @IsString()
+  @IsNotEmpty()
+  category: NpcCategory;
 
   @ApiProperty({ description: 'Name of the NPC', example: 'Wolf lvl 1' })
   @IsString()
@@ -58,6 +64,7 @@ export class CreateNpcDto {
   static toCommand(dto: CreateNpcDto, userId: string, roles: string[]): CreateNpcCommand {
     return new CreateNpcCommand(
       dto.realmId,
+      dto.category,
       dto.name,
       dto.level,
       dto.db,

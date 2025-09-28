@@ -15,6 +15,7 @@ export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> 
   async execute(command: CreateNpcCommand): Promise<Npc> {
     const npc = Npc.create({
       realmId: command.realmId,
+      category: command.category,
       name: command.name,
       level: command.level,
       db: command.db || 0,

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
+import type { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
 import { NpcAttack } from './npc-attack.model';
 import { NpcItem } from './npc-item';
 import { NpcSkill } from './npc-skill.model';
@@ -14,6 +15,9 @@ export class NpcModel {
 
   @Prop({ required: true })
   realmId: string;
+
+  @Prop({ type: String, required: true })
+  category: NpcCategory;
 
   @Prop({ required: true })
   name: string;

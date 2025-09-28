@@ -59,6 +59,7 @@ export class MongoNpcRepository implements NpcRepository {
     return Npc.fromProps({
       id: doc.id as string,
       realmId: doc.realmId,
+      category: doc.category,
       name: doc.name,
       level: doc.level,
       db: doc.db,
