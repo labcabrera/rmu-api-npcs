@@ -1,7 +1,30 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { CreateNpcCommand } from '../../../application/cqrs/commands/create-npc.command';
+import { NpcAttackDto } from './npc-attack.dto';
+import { NpcSkillDto } from './npc-skill.dto';
 
 export class CreateNpcDto {
+  @ApiProperty({ description: 'Name of the NPC', example: 'Wolf lvl 1' })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({ description: 'Level of the NPC', example: 1 })
+  @IsNumber()
+  level: number;
+
+  @ApiProperty({ description: 'Skills of the NPC', type: [NpcSkillDto] })
+  @IsArray()
+  skills: NpcSkillDto[];
+
+  @ApiProperty({ description: 'Attacks of the NPC', type: [NpcAttackDto] })
+  @IsArray()
+  attacks: NpcAttackDto[];
+
   static toCommand(dto: CreateNpcDto, userId: string, roles: string[]): CreateNpcCommand {
-    throw new Error('Method not implemented.');
+    const skills = dto.skills.map((skill) => NpcSkillDto.toDomain(skill));
+    const attacks = dto.attacks.map((attack) => NpcAttackDto.toDomain(attack));
+    return new CreateNpcCommand(dto.name, dto.level, skills, attacks, userId, roles);
   }
 }

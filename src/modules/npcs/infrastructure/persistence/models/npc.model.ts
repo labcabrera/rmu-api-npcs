@@ -14,6 +14,9 @@ export class NpcModel {
   @Prop({ required: true })
   name: string;
 
+  @Prop({ required: true })
+  level: number;
+
   @Prop({ type: [NpcSkill], required: true })
   skills: NpcSkill[];
 

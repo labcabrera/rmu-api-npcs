@@ -8,6 +8,7 @@ import { NpcSkill } from '../value-objects/npc-skill.vo';
 export interface NpcProps {
   id: string;
   name: string;
+  level: number;
   skills: NpcSkill[];
   attacks: NpcAttack[];
   owner: string;
@@ -19,6 +20,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
   private constructor(
     public readonly id: string,
     public name: string,
+    public level: number,
     public skills: NpcSkill[],
     public attacks: NpcAttack[],
     public owner: string,
@@ -32,6 +34,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     const npc = new Npc(
       randomUUID(),
       props.name,
+      props.level,
       props.skills ?? [],
       props.attacks ?? [],
       props.owner,
@@ -46,6 +49,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     return new Npc(
       props.id,
       props.name,
+      props.level,
       props.skills ?? [],
       props.attacks ?? [],
       props.owner,
@@ -58,6 +62,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     return {
       id: this.id,
       name: this.name,
+      level: this.level,
       skills: this.skills,
       attacks: this.attacks,
       owner: this.owner,

@@ -7,23 +7,24 @@ import { SharedModule } from '../shared/shared.module';
 import { AddSkillHandler } from './application/cqrs/handlers/add-skill.handler';
 import { CreateNpcHandler } from './application/cqrs/handlers/create-npc.handler';
 import { GetNpcHandler } from './application/cqrs/handlers/get-npc.handler';
-import { Npc } from './domain/aggregates/npc.aggregate';
+import { GetNpcsHandler } from './application/cqrs/handlers/get-npcs.handler';
 import { MongoNpcRepository } from './infrastructure/db/mongo.npc.repository';
 import { KafkaEventBus } from './infrastructure/messaging/kafka.event-bus';
-import { NpcSchema } from './infrastructure/persistence/models/npc.model';
+import { NpcModel, NpcSchema } from './infrastructure/persistence/models/npc.model';
+import { NpcController } from './interfaces/http/npc.controller';
 
 const CommandHandlers = [CreateNpcHandler, AddSkillHandler];
-const QueryHandlers = [GetNpcHandler];
+const QueryHandlers = [GetNpcHandler, GetNpcsHandler];
 
 @Module({
   imports: [
     TerminusModule,
     CqrsModule,
-    MongooseModule.forFeature([{ name: Npc.name, schema: NpcSchema }]),
+    MongooseModule.forFeature([{ name: NpcModel.name, schema: NpcSchema }]),
     AuthModule,
     SharedModule,
   ],
-  controllers: [],
+  controllers: [NpcController],
   providers: [
     ...CommandHandlers,
     ...QueryHandlers,
