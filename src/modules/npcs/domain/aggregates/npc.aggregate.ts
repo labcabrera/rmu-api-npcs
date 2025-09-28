@@ -2,6 +2,7 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
 import { DomainEvent } from '../../../shared/domain/events/domain-event';
 import { NpcCreatedEvent } from '../events/npc-created.event';
+import { NpcUpdatedEvent } from '../events/npc-updated.event';
 import { NpcAttack } from '../value-objects/npc-attack.vo';
 import { NpcSkill } from '../value-objects/npc-skill.vo';
 
@@ -43,6 +44,16 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     );
     npc.apply(new NpcCreatedEvent(npc.toProps()));
     return npc;
+  }
+
+  update(props: Partial<Omit<NpcProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
+    const { name, level, skills, attacks } = props;
+    if (name) this.name = name;
+    if (level) this.level = level;
+    if (skills) this.skills = skills;
+    if (attacks) this.attacks = attacks;
+    this.updatedAt = new Date();
+    this.apply(new NpcUpdatedEvent(this.toProps()));
   }
 
   static fromProps(props: NpcProps): Npc {

@@ -6,5 +6,11 @@ export class NpcAttack {
   name: string;
 
   @Prop({ required: true })
-  bonus: number;
+  attackTable: string;
+
+  @Prop({ required: true })
+  bo: number;
+
+  @Prop({ required: true })
+  fumble: number;
 }

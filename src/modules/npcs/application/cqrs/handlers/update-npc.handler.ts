@@ -1,7 +1,8 @@
 import { Inject } from '@nestjs/common';
-import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundError } from '../../../../shared/domain/errors';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
+import type { NpcEventBusPort } from '../../ports/npc-event-bus.port';
 import type { NpcRepository } from '../../ports/npc.repository';
 import { UpdateNpcCommand } from '../commands/update-npc.command';
 
@@ -9,7 +10,7 @@ import { UpdateNpcCommand } from '../commands/update-npc.command';
 export class UpdateNpcHandler implements ICommandHandler<UpdateNpcCommand, Npc> {
   constructor(
     @Inject('NpcRepository') private readonly repo: NpcRepository,
-    private readonly eventBus: EventBus,
+    @Inject('NpcEventBus') private readonly eventBus: NpcEventBusPort,
   ) {}
 
   async execute(command: UpdateNpcCommand): Promise<Npc> {
@@ -17,9 +18,14 @@ export class UpdateNpcHandler implements ICommandHandler<UpdateNpcCommand, Npc> 
     if (!npc) {
       throw new NotFoundError('NPC', command.id);
     }
-    //TODO
-    const saved = await this.repo.save(npc);
-    //TODO propagate events
+    npc.update({
+      name: command.name,
+      level: command.level,
+      skills: command.skills,
+      attacks: command.attacks,
+    });
+    const saved = await this.repo.update(npc.id, npc);
+    npc.getUncommittedEvents().forEach((event) => this.eventBus.publish(event));
     return saved;
   }
 }

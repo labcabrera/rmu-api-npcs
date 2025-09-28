@@ -5,14 +5,23 @@ import { NpcAttackDto } from './npc-attack.dto';
 import { NpcSkillDto } from './npc-skill.dto';
 
 export class NpcDto {
+  @ApiProperty({ description: 'NPC unique identifier', example: 'npc-123' })
   id: string;
+
+  @ApiProperty({ description: 'NPC name', example: 'Goblin Warrior' })
   name: string;
+
+  @ApiProperty({ description: 'NPC level', example: 5 })
   level: number;
+
+  @ApiProperty({ type: [NpcSkillDto], description: 'NPC skills' })
   skills: NpcSkillDto[];
+
+  @ApiProperty({ type: [NpcAttackDto], description: 'NPC attacks' })
   attacks: NpcAttackDto[];
+
+  @ApiProperty({ description: 'Owner user ID', example: 'user-456' })
   owner: string;
-  createdAt: Date;
-  updatedAt: Date | undefined;
 
   static fromEntity(entity: Npc): NpcDto {
     return {
@@ -22,8 +31,6 @@ export class NpcDto {
       skills: entity.skills,
       attacks: entity.attacks,
       owner: entity.owner,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
     };
   }
 }

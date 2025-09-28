@@ -9,12 +9,13 @@ import { CreateNpcHandler } from './application/cqrs/handlers/create-npc.handler
 import { DeleteNpcHandler } from './application/cqrs/handlers/delete-npc.handler';
 import { GetNpcHandler } from './application/cqrs/handlers/get-npc.handler';
 import { GetNpcsHandler } from './application/cqrs/handlers/get-npcs.handler';
+import { UpdateNpcHandler } from './application/cqrs/handlers/update-npc.handler';
 import { MongoNpcRepository } from './infrastructure/db/mongo.npc.repository';
 import { KafkaNpcEventBusAdapter } from './infrastructure/messaging/kafka.npc-event-bus.adapter';
 import { NpcModel, NpcSchema } from './infrastructure/persistence/models/npc.model';
 import { NpcController } from './interfaces/http/npc.controller';
 
-const CommandHandlers = [CreateNpcHandler, AddSkillHandler, DeleteNpcHandler];
+const CommandHandlers = [CreateNpcHandler, AddSkillHandler, UpdateNpcHandler, DeleteNpcHandler];
 const QueryHandlers = [GetNpcHandler, GetNpcsHandler];
 
 @Module({
