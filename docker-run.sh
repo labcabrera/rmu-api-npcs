@@ -10,10 +10,6 @@ docker build -t labcabrera/rmu-api-npcs:latest .
 
 docker run -d -p 3008:3008 --network rmu-network --name rmu-api-npcs -h rmu-api-npcs \
   -e PORT='3008' \
-  -e RMU_API_CORE_URI=http://rmu-api-core:3001/v1 \
-  -e RMU_API_STRATEGIC_URI=http://rmu-api-strategic:3002/v1 \
-  -e RMU_API_ITEMS_URI=http://rmu-api-items:3006/v1 \
-  -e RMU_API_ATTACK_URI=http://rmu-api-attack:8000/v1 \
   -e RMU_MONGO_NPCS_URI='mongodb://admin:admin@rmu-mongo:27017/rmu-npcs?authSource=admin' \
   -e RMU_IAM_TOKEN_URI='http://rmu-keycloak:8080/realms/rmu-local/protocol/openid-connect/token' \
   -e RMU_IAM_JWK_URI='http://rmu-keycloak:8080/realms/rmu-local/protocol/openid-connect/certs' \
