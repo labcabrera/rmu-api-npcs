@@ -23,6 +23,12 @@ export class NpcDto {
   @ApiProperty({ type: [NpcAttackDto], description: 'NPC attacks' })
   attacks: NpcAttackDto[];
 
+  @ApiProperty({ description: 'NPC description', example: 'A fierce goblin warrior.', required: false })
+  description?: string;
+
+  @ApiProperty({ description: 'NPC image URL', example: 'static/images/goblin.jpg', required: false })
+  imageUrl?: string;
+
   @ApiProperty({ description: 'Owner user ID', example: 'user-456' })
   owner: string;
 
@@ -34,6 +40,8 @@ export class NpcDto {
       level: entity.level,
       skills: entity.skills,
       attacks: entity.attacks,
+      description: entity.description,
+      imageUrl: entity.imageUrl,
       owner: entity.owner,
     };
   }

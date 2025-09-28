@@ -26,6 +26,12 @@ export class NpcModel {
   @Prop({ type: [NpcAttack], required: true })
   attacks: NpcAttack[];
 
+  @Prop({ type: String, required: false })
+  description: string | undefined;
+
+  @Prop({ type: String, required: false })
+  imageUrl: string | undefined;
+
   @Prop({ required: true })
   owner: string;
 

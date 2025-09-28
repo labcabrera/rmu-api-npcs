@@ -8,6 +8,8 @@ export class CreateNpcCommand {
     public readonly level: number,
     public readonly skills: NpcSkill[],
     public readonly attacks: NpcAttack[],
+    public readonly description: string | undefined,
+    public readonly imageUrl: string | undefined,
     public readonly userId: string,
     public readonly roles: string[],
   ) {}

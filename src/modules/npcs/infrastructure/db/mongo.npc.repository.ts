@@ -63,6 +63,8 @@ export class MongoNpcRepository implements NpcRepository {
       level: doc.level,
       skills: doc.skills,
       attacks: doc.attacks,
+      description: doc.description,
+      imageUrl: doc.imageUrl,
       owner: doc.owner,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

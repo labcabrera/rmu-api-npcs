@@ -13,6 +13,8 @@ export interface NpcProps {
   level: number;
   skills: NpcSkill[];
   attacks: NpcAttack[];
+  description: string | undefined;
+  imageUrl: string | undefined;
   owner: string;
   createdAt: Date;
   updatedAt: Date | undefined;
@@ -26,6 +28,8 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     public level: number,
     public skills: NpcSkill[],
     public attacks: NpcAttack[],
+    public description: string | undefined,
+    public imageUrl: string | undefined,
     public owner: string,
     public createdAt: Date,
     public updatedAt: Date | undefined,
@@ -41,6 +45,8 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       props.level,
       props.skills ?? [],
       props.attacks ?? [],
+      props.description,
+      props.imageUrl,
       props.owner,
       new Date(),
       undefined,
@@ -67,6 +73,8 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       props.level,
       props.skills ?? [],
       props.attacks ?? [],
+      props.description,
+      props.imageUrl,
       props.owner,
       props.createdAt,
       props.updatedAt,
@@ -81,6 +89,8 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       level: this.level,
       skills: this.skills,
       attacks: this.attacks,
+      description: this.description,
+      imageUrl: this.imageUrl,
       owner: this.owner,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

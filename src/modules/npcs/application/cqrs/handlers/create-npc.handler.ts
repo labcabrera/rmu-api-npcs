@@ -19,6 +19,8 @@ export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> 
       level: command.level,
       skills: command.skills,
       attacks: command.attacks,
+      description: command.description,
+      imageUrl: command.imageUrl,
       owner: command.userId,
     });
     const saved = await this.repo.save(npc);
