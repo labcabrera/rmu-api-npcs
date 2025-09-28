@@ -1,7 +1,7 @@
 {
   "name": "rmu-api-npcs",
-  "version": "0.1.0",
-  "description": "NPCS API for RMU Engine",
+  "version": "0.1.1",
+  "description": "RMU Engine NPCs API",
   "author": {
     "name": "Luis Cabrera",
     "email": "lab.cabrera@gmail.com"

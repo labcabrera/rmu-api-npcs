@@ -1,16 +1,16 @@
 import { Prop, Schema } from '@nestjs/mongoose';
 
 @Schema({ _id: false })
-export class NpcAttack {
+export class NpcItem {
   @Prop({ required: true })
   name: string;
 
   @Prop({ required: true })
-  attackTable: string;
+  itemTypeId: number;
 
   @Prop({ required: true })
-  bo: number;
+  stackeable: boolean;
 
   @Prop({ required: true })
-  fumble: number;
+  amount: number;
 }
