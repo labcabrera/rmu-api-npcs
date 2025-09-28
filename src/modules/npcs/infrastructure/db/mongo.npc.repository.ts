@@ -62,6 +62,7 @@ export class MongoNpcRepository implements NpcRepository {
       category: doc.category,
       name: doc.name,
       level: doc.level,
+      hp: doc.hp,
       bd: doc.bd,
       at: doc.at,
       initiative: doc.initiative,

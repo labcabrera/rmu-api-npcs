@@ -7,6 +7,7 @@ export class UpdateNpcCommand {
     public readonly id: string,
     public readonly name: string | undefined,
     public readonly level: number | undefined,
+    public readonly hp: number | undefined,
     public readonly bd: number | undefined,
     public readonly at: number | undefined,
     public readonly initiative: number | undefined,

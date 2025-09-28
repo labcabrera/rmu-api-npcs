@@ -26,6 +26,9 @@ export class NpcModel {
   level: number;
 
   @Prop({ required: true })
+  hp: number;
+
+  @Prop({ required: true })
   bd: number;
 
   @Prop({ required: true })

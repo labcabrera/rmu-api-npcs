@@ -22,6 +22,9 @@ export class NpcDto {
   @ApiProperty({ description: 'NPC level', example: 5 })
   level: number;
 
+  @ApiProperty({ description: 'Hit points', example: 50 })
+  hp: number;
+
   @ApiProperty({ description: 'Defensive bonus', example: 10 })
   bd: number;
 
@@ -56,6 +59,7 @@ export class NpcDto {
       realmId: entity.realmId,
       name: entity.name,
       level: entity.level,
+      hp: entity.hp,
       bd: entity.bd,
       at: entity.at,
       initiative: entity.initiative,

@@ -14,6 +14,7 @@ export interface NpcProps {
   category: NpcCategory;
   name: string;
   level: number;
+  hp: number;
   bd: number;
   at: number;
   initiative: number;
@@ -34,6 +35,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     public category: NpcCategory,
     public name: string,
     public level: number,
+    public hp: number,
     public bd: number,
     public at: number,
     public initiative: number,
@@ -56,6 +58,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       props.category,
       props.name,
       props.level,
+      props.hp,
       props.bd,
       props.at,
       props.initiative,
@@ -73,9 +76,10 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
   }
 
   update(props: Partial<Omit<NpcProps, 'id' | 'realmId' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
-    const { name, level, bd, at, initiative, skills, attacks, description, imageUrl } = props;
+    const { name, level, hp, bd, at, initiative, skills, attacks, description, imageUrl } = props;
     if (name) this.name = name;
     if (level) this.level = level;
+    if (hp) this.hp = hp;
     if (bd) this.bd = bd;
     if (at) this.at = at;
     if (initiative) this.initiative = initiative;
@@ -94,6 +98,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       props.category,
       props.name,
       props.level,
+      props.hp,
       props.bd,
       props.at,
       props.initiative,
@@ -115,6 +120,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       category: this.category,
       name: this.name,
       level: this.level,
+      hp: this.hp,
       bd: this.bd,
       at: this.at,
       initiative: this.initiative,

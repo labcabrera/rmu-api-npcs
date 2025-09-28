@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { CreateNpcCommand } from '../../../application/cqrs/commands/create-npc.command';
 import type { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
 import { NpcAttackDto } from './npc-attack.dto';
@@ -25,6 +25,11 @@ export class CreateNpcDto {
   @ApiProperty({ description: 'Level of the NPC', example: 1 })
   @IsNumber()
   level: number;
+
+  @ApiProperty({ description: 'Hit points', example: 50 })
+  @IsNumber()
+  @Min(1)
+  hp: number;
 
   @ApiProperty({ description: 'Defensive bonus', example: 10, default: 0 })
   @IsNumber()
@@ -72,6 +77,7 @@ export class CreateNpcDto {
       dto.category,
       dto.name,
       dto.level,
+      dto.hp,
       dto.bd,
       dto.at,
       dto.initiative,

@@ -15,6 +15,10 @@ export class UpdateNpcDto {
 
   @IsNumber()
   @IsOptional()
+  hp: number | undefined;
+
+  @IsNumber()
+  @IsOptional()
   bd: number | undefined;
 
   @IsNumber()
@@ -50,6 +54,7 @@ export class UpdateNpcDto {
       id,
       dto.name,
       dto.level,
+      dto.hp,
       dto.bd,
       dto.at,
       dto.initiative,

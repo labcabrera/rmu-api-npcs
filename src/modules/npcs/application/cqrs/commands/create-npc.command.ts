@@ -9,6 +9,7 @@ export class CreateNpcCommand {
     public readonly category: NpcCategory,
     public readonly name: string,
     public readonly level: number,
+    public readonly hp: number,
     public readonly bd: number | undefined,
     public readonly at: number | undefined,
     public readonly initiative: number | undefined,
