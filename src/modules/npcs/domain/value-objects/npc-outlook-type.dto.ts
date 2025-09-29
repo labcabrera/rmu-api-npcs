@@ -1,5 +1,5 @@
 export type NpcOutlookType =
-  | 'aggresive'
+  | 'aggressive'
   | 'aloof'
   | 'altruistic'
   | 'belligerent'

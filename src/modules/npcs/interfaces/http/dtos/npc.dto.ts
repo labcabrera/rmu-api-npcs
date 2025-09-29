@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { PaginationDto } from '../../../../shared/infrastructure/controller/dto';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
 import type { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
+import type { NpcOutlookType } from '../../../domain/value-objects/npc-outlook-type.dto';
 import { NpcAttackDto } from './npc-attack.dto';
 import { NpcItemDto } from './npc-item.dto';
 import { NpcSkillDto } from './npc-skill.dto';
@@ -15,6 +16,9 @@ export class NpcDto {
 
   @ApiProperty({ description: 'NPC category', example: 'humanoid' })
   category: NpcCategory;
+
+  @ApiProperty({ description: 'NPC outlook type', example: 'aggressive' })
+  outlookType: NpcOutlookType;
 
   @ApiProperty({ description: 'NPC name', example: 'Goblin Warrior' })
   name: string;
@@ -57,6 +61,7 @@ export class NpcDto {
       id: entity.id,
       category: entity.category,
       realmId: entity.realmId,
+      outlookType: entity.outlookType,
       name: entity.name,
       level: entity.level,
       hp: entity.hp,
