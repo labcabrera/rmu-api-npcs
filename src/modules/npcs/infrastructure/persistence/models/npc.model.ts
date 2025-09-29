@@ -41,6 +41,9 @@ export class NpcModel {
   @Prop({ required: true })
   initiative: number;
 
+  @Prop({ required: true })
+  endurance: number;
+
   @Prop({ type: [NpcSkill], required: true })
   skills: NpcSkill[];
 

@@ -34,6 +34,10 @@ export class UpdateNpcDto {
   @IsOptional()
   initiative: number | undefined;
 
+  @IsNumber()
+  @IsOptional()
+  endurance: number | undefined;
+
   @IsArray()
   @IsOptional()
   skills: NpcSkill[] | undefined;
@@ -57,18 +61,21 @@ export class UpdateNpcDto {
   static toCommand(id: string, dto: UpdateNpcDto, userId: string, roles: string[]): UpdateNpcCommand {
     return new UpdateNpcCommand(
       id,
-      dto.outlookType,
-      dto.name,
-      dto.level,
-      dto.hp,
-      dto.db,
-      dto.at,
-      dto.initiative,
-      dto.skills,
-      dto.items,
-      dto.attacks,
-      dto.description,
-      dto.imageUrl,
+      {
+        outlookType: dto.outlookType,
+        name: dto.name,
+        level: dto.level,
+        hp: dto.hp,
+        db: dto.db,
+        at: dto.at,
+        initiative: dto.initiative,
+        endurance: dto.endurance,
+        skills: dto.skills,
+        items: dto.items,
+        attacks: dto.attacks,
+        description: dto.description,
+        imageUrl: dto.imageUrl,
+      },
       userId,
       roles,
     );

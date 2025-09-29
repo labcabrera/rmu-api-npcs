@@ -23,6 +23,7 @@ export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> 
       db: command.db || 0,
       at: command.at || 1,
       initiative: command.initiative || 0,
+      endurance: command.endurance || 0,
       skills: command.skills || [],
       items: command.items || [],
       attacks: command.attacks || [],

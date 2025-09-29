@@ -37,20 +37,25 @@ export class CreateNpcDto {
   @Min(1)
   hp: number;
 
-  @ApiProperty({ description: 'Defensive bonus', example: 10, default: 0 })
+  @ApiProperty({ description: 'Defensive bonus', example: 10 })
   @IsNumber()
   @IsOptional()
-  db: number | undefined;
+  db: number;
 
-  @ApiProperty({ description: 'Armor type', example: 5, minimum: 1, maximum: 10, default: 1 })
+  @ApiProperty({ description: 'Armor type', example: 5, minimum: 1, maximum: 10 })
   @IsNumber()
   @IsOptional()
-  at: number | undefined;
+  at: number;
 
-  @ApiProperty({ description: 'Initiative of the NPC', example: 5, default: 1 })
+  @ApiProperty({ description: 'Initiative of the NPC', example: 5 })
   @IsNumber()
   @IsOptional()
-  initiative: number | undefined;
+  initiative: number;
+
+  @ApiProperty({ description: 'Endurance of the NPC', example: 5 })
+  @IsNumber()
+  @IsOptional()
+  endurance: number;
 
   @ApiProperty({ description: 'Skills of the NPC', type: [NpcSkillDto] })
   @IsArray()
@@ -79,20 +84,23 @@ export class CreateNpcDto {
 
   static toCommand(dto: CreateNpcDto, userId: string, roles: string[]): CreateNpcCommand {
     return new CreateNpcCommand(
-      dto.realmId,
-      dto.category,
-      dto.outlookType,
-      dto.name,
-      dto.level,
-      dto.hp,
-      dto.db,
-      dto.at,
-      dto.initiative,
-      dto.skills ? dto.skills.map((skill) => NpcSkillDto.toDomain(skill)) : [],
-      dto.items ? dto.items.map((item) => NpcItemDto.toDomain(item)) : [],
-      dto.attacks ? dto.attacks.map((attack) => NpcAttackDto.toDomain(attack)) : [],
-      dto.description,
-      dto.imageUrl,
+      {
+        realmId: dto.realmId,
+        category: dto.category,
+        outlookType: dto.outlookType,
+        name: dto.name,
+        level: dto.level,
+        hp: dto.hp,
+        db: dto.db,
+        at: dto.at,
+        initiative: dto.initiative,
+        endurance: dto.endurance,
+        skills: dto.skills ? dto.skills.map((skill) => NpcSkillDto.toDomain(skill)) : [],
+        items: dto.items ? dto.items.map((item) => NpcItemDto.toDomain(item)) : [],
+        attacks: dto.attacks ? dto.attacks.map((attack) => NpcAttackDto.toDomain(attack)) : [],
+        description: dto.description,
+        imageUrl: dto.imageUrl,
+      },
       userId,
       roles,
     );

@@ -67,6 +67,7 @@ export class MongoNpcRepository implements NpcRepository {
       db: doc.db,
       at: doc.at,
       initiative: doc.initiative,
+      endurance: doc.endurance,
       skills: doc.skills,
       items: doc.items,
       attacks: doc.attacks,

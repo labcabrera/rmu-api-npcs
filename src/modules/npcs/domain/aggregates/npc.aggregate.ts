@@ -20,6 +20,7 @@ export interface NpcProps {
   db: number;
   at: number;
   initiative: number;
+  endurance: number;
   skills: NpcSkill[];
   items: NpcItem[];
   attacks: NpcAttack[];
@@ -42,6 +43,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     public db: number,
     public at: number,
     public initiative: number,
+    public endurance: number,
     public skills: NpcSkill[],
     public items: NpcItem[],
     public attacks: NpcAttack[],
@@ -66,6 +68,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       props.db,
       props.at,
       props.initiative,
+      props.endurance,
       props.skills ?? [],
       props.items ?? [],
       props.attacks ?? [],
@@ -108,6 +111,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       props.db,
       props.at,
       props.initiative,
+      props.endurance,
       props.skills ?? [],
       props.items ?? [],
       props.attacks ?? [],
@@ -131,6 +135,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       db: this.db,
       at: this.at,
       initiative: this.initiative,
+      endurance: this.endurance,
       skills: this.skills,
       items: this.items,
       attacks: this.attacks,
