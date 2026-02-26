@@ -121,6 +121,25 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     this.apply(new NpcUpdatedEvent(this.toProps()));
   }
 
+  addAttack(attack: NpcAttack): void {
+    if (this.attacks.some((a) => a.attackName === attack.attackName)) {
+      throw new ValidationError(`Attack with name ${attack.attackName} already exists`);
+    }
+    this.attacks.push(attack);
+    this.updatedAt = new Date();
+    this.apply(new NpcUpdatedEvent(this.toProps()));
+  }
+
+  deleteAttack(attackName: string): void {
+    const index = this.attacks.findIndex((a) => a.attackName === attackName);
+    if (index === -1) {
+      throw new ValidationError(`Attack with name ${attackName} does not exist`);
+    }
+    this.attacks.splice(index, 1);
+    this.updatedAt = new Date();
+    this.apply(new NpcUpdatedEvent(this.toProps()));
+  }
+
   static fromProps(props: NpcProps): Npc {
     return new Npc(
       props.id,
