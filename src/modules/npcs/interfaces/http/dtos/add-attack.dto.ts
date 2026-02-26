@@ -9,6 +9,7 @@ export class AddAttackDto {
   attackName: string;
 
   @ApiProperty({ description: 'Attack type', example: 'melee' })
+  @IsString()
   attackType: AttackType;
 
   @ApiProperty({ description: 'Attack table', example: 'attack-table-1' })
