@@ -7,6 +7,7 @@ import { SharedModule } from '../shared/shared.module';
 import { AddSkillHandler } from './application/cqrs/handlers/add-skill.handler';
 import { CreateNpcHandler } from './application/cqrs/handlers/create-npc.handler';
 import { DeleteNpcHandler } from './application/cqrs/handlers/delete-npc.handler';
+import { DeleteSkillHandler } from './application/cqrs/handlers/delete-skill.handler';
 import { GetNpcHandler } from './application/cqrs/handlers/get-npc.handler';
 import { GetNpcsHandler } from './application/cqrs/handlers/get-npcs.handler';
 import { UpdateNpcHandler } from './application/cqrs/handlers/update-npc.handler';
@@ -16,7 +17,7 @@ import { NpcModel, NpcSchema } from './infrastructure/persistence/models/npc.mod
 import { NpcSkillController } from './interfaces/http/npc-skill.controller';
 import { NpcController } from './interfaces/http/npc.controller';
 
-const CommandHandlers = [CreateNpcHandler, UpdateNpcHandler, DeleteNpcHandler, AddSkillHandler];
+const CommandHandlers = [CreateNpcHandler, UpdateNpcHandler, DeleteNpcHandler, AddSkillHandler, DeleteSkillHandler];
 const QueryHandlers = [GetNpcHandler, GetNpcsHandler];
 
 @Module({

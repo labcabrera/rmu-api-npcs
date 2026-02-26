@@ -111,6 +111,16 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     this.apply(new NpcUpdatedEvent(this.toProps()));
   }
 
+  deleteSkill(skillId: string) {
+    const index = this.skills.findIndex((s) => s.skillId === skillId);
+    if (index === -1) {
+      throw new ValidationError(`Skill with id ${skillId} does not exist`);
+    }
+    this.skills.splice(index, 1);
+    this.updatedAt = new Date();
+    this.apply(new NpcUpdatedEvent(this.toProps()));
+  }
+
   static fromProps(props: NpcProps): Npc {
     return new Npc(
       props.id,
