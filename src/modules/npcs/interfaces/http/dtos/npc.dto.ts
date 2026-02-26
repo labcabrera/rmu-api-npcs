@@ -38,6 +38,9 @@ export class NpcDto {
   @ApiProperty({ description: 'NPC initiative', example: 5 })
   initiative: number;
 
+  @ApiProperty({ description: 'NPC endurance', example: 50 })
+  endurance: number;
+
   @ApiProperty({ type: [NpcSkillDto], description: 'NPC skills' })
   skills: NpcSkillDto[];
 
@@ -68,6 +71,7 @@ export class NpcDto {
       db: entity.db,
       at: entity.at,
       initiative: entity.initiative,
+      endurance: entity.endurance,
       skills: entity.skills,
       items: entity.items,
       attacks: entity.attacks,

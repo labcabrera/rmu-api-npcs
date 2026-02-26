@@ -83,7 +83,8 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
   }
 
   update(props: Partial<Omit<NpcProps, 'id' | 'realmId' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
-    const { outlookType, name, level, hp, db, at, initiative, skills, attacks, description, imageUrl } = props;
+    const { outlookType, name, level, hp, db, at, initiative, endurance, skills, attacks, description, imageUrl } =
+      props;
     if (outlookType) this.outlookType = outlookType;
     if (name) this.name = name;
     if (level) this.level = level;
@@ -91,6 +92,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     if (db) this.db = db;
     if (at) this.at = at;
     if (initiative) this.initiative = initiative;
+    if (endurance) this.endurance = endurance;
     if (skills) this.skills = skills;
     if (attacks) this.attacks = attacks;
     if (description !== undefined) this.description = description;

@@ -26,6 +26,7 @@ export class UpdateNpcHandler implements ICommandHandler<UpdateNpcCommand, Npc> 
       db: command.db,
       at: command.at,
       initiative: command.initiative,
+      endurance: command.endurance,
       skills: command.skills,
       attacks: command.attacks,
       description: command.description,
