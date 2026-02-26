@@ -1,5 +1,6 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
+import { ValidationError } from '../../../shared/domain/errors';
 import { DomainEvent } from '../../../shared/domain/events/domain-event';
 import { NpcCreatedEvent } from '../events/npc-created.event';
 import { NpcUpdatedEvent } from '../events/npc-updated.event';
@@ -97,6 +98,15 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     if (attacks) this.attacks = attacks;
     if (description !== undefined) this.description = description;
     if (imageUrl !== undefined) this.imageUrl = imageUrl;
+    this.updatedAt = new Date();
+    this.apply(new NpcUpdatedEvent(this.toProps()));
+  }
+
+  addSkill(skill: NpcSkill): void {
+    if (this.skills.some((s) => s.skillId === skill.skillId)) {
+      throw new ValidationError(`Skill with id ${skill.skillId} already exists`);
+    }
+    this.skills.push(skill);
     this.updatedAt = new Date();
     this.apply(new NpcUpdatedEvent(this.toProps()));
   }
