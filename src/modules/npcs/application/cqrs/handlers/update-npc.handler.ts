@@ -2,7 +2,7 @@ import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundError } from '../../../../shared/domain/errors';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
-import type { NpcEventBusPort } from '../../ports/npc-event-bus.port';
+import type { NpcEventBusPort } from '../../ports/npc.event-bus.port';
 import type { NpcRepository } from '../../ports/npc.repository';
 import { UpdateNpcCommand } from '../commands/update-npc.command';
 

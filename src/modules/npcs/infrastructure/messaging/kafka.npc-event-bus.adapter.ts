@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DomainEvent } from 'src/modules/shared/domain/events/domain-event';
 import { KafkaProducerService } from 'src/modules/shared/infrastructure/messaging/kafka-producer.service';
-import { NpcEventBusPort } from '../../application/ports/npc-event-bus.port';
+import { NpcEventBusPort } from '../../application/ports/npc.event-bus.port';
 import { NpcProps } from '../../domain/aggregates/npc.aggregate';
 
 @Injectable()

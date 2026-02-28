@@ -13,6 +13,7 @@ import { DeleteSkillHandler } from './application/cqrs/handlers/delete-skill.han
 import { GetNpcHandler } from './application/cqrs/handlers/get-npc.handler';
 import { GetNpcsHandler } from './application/cqrs/handlers/get-npcs.handler';
 import { UpdateNpcHandler } from './application/cqrs/handlers/update-npc.handler';
+import { ApiAttackTableAdapter } from './infrastructure/api-client/attack-table.adapter';
 import { MongoNpcRepository } from './infrastructure/db/mongo.npc.repository';
 import { KafkaNpcEventBusAdapter } from './infrastructure/messaging/kafka.npc-event-bus.adapter';
 import { NpcModel, NpcSchema } from './infrastructure/persistence/models/npc.model';
@@ -50,6 +51,10 @@ const QueryHandlers = [GetNpcHandler, GetNpcsHandler];
     {
       provide: 'NpcEventBus',
       useClass: KafkaNpcEventBusAdapter,
+    },
+    {
+      provide: 'AttackTablePort',
+      useClass: ApiAttackTableAdapter,
     },
   ],
   exports: [],

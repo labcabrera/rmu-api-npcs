@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
-import type { NpcEventBusPort } from '../../ports/npc-event-bus.port';
+import type { NpcEventBusPort } from '../../ports/npc.event-bus.port';
 import type { NpcRepository } from '../../ports/npc.repository';
 import { CreateNpcCommand } from '../commands/create-npc.command';
 
