@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber, IsString } from 'class-validator';
+import { IsIn, IsNumber, IsString } from 'class-validator';
 import { AddAttackCommand } from '../../../application/cqrs/commands/add-attack.command';
 import type { AttackType } from '../../../domain/value-objects/attack-type.vo';
 
@@ -9,8 +9,9 @@ export class AddAttackDto {
   @IsString()
   attackName: string;
 
-  @ApiProperty({ description: 'Attack type', example: 'melee' })
+  @ApiProperty({ description: 'Attack type', example: 'melee', enum: ['melee', 'ranged'] })
   @IsString()
+  @IsIn(['melee', 'ranged'])
   attackType: AttackType;
 
   @ApiProperty({ description: 'Attack table', example: 'attack-table-1' })
