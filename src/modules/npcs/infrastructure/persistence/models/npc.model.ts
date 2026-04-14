@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
+import type { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
+import type { NpcOutlookType } from '../../../domain/value-objects/npc-outlook-type.dto';
 import { NpcAttack } from './npc-attack.model';
 import { NpcItem } from './npc-item';
 import { NpcSkill } from './npc-skill.model';
@@ -15,6 +17,12 @@ export class NpcModel {
   @Prop({ required: true })
   realmId: string;
 
+  @Prop({ type: String, required: true })
+  category: NpcCategory;
+
+  @Prop({ type: String, required: true })
+  outlookType: NpcOutlookType;
+
   @Prop({ required: true })
   name: string;
 
@@ -22,10 +30,19 @@ export class NpcModel {
   level: number;
 
   @Prop({ required: true })
+  hp: number;
+
+  @Prop({ required: true })
   db: number;
 
   @Prop({ required: true })
   at: number;
+
+  @Prop({ required: true })
+  initiative: number;
+
+  @Prop({ required: true })
+  endurance: number;
 
   @Prop({ type: [NpcSkill], required: true })
   skills: NpcSkill[];

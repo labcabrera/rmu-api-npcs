@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { CreateNpcCommand } from '../../../application/cqrs/commands/create-npc.command';
+import type { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
+import type { NpcOutlookType } from '../../../domain/value-objects/npc-outlook-type.dto';
 import { NpcAttackDto } from './npc-attack.dto';
 import { NpcItemDto } from './npc-item.dto';
 import { NpcSkillDto } from './npc-skill.dto';
@@ -11,6 +13,16 @@ export class CreateNpcDto {
   @IsNotEmpty()
   realmId: string;
 
+  @ApiProperty({ description: 'Category of the NPC', example: 'humanoid' })
+  @IsString()
+  @IsNotEmpty()
+  category: NpcCategory;
+
+  @ApiProperty({ description: 'Outlook type of the NPC', example: 'goblin' })
+  @IsString()
+  @IsNotEmpty()
+  outlookType: NpcOutlookType;
+
   @ApiProperty({ description: 'Name of the NPC', example: 'Wolf lvl 1' })
   @IsString()
   @IsNotEmpty()
@@ -20,15 +32,30 @@ export class CreateNpcDto {
   @IsNumber()
   level: number;
 
-  @ApiProperty({ description: 'Defensive bonus', example: 10, default: 0 })
+  @ApiProperty({ description: 'Hit points', example: 50 })
   @IsNumber()
-  @IsOptional()
-  db: number | undefined;
+  @Min(1)
+  hp: number;
 
-  @ApiProperty({ description: 'Armor type', example: 5, minimum: 1, maximum: 10, default: 1 })
+  @ApiProperty({ description: 'Defensive bonus', example: 10 })
   @IsNumber()
   @IsOptional()
-  at: number | undefined;
+  db: number;
+
+  @ApiProperty({ description: 'Armor type', example: 5, minimum: 1, maximum: 10 })
+  @IsNumber()
+  @IsOptional()
+  at: number;
+
+  @ApiProperty({ description: 'Initiative of the NPC', example: 5 })
+  @IsNumber()
+  @IsOptional()
+  initiative: number;
+
+  @ApiProperty({ description: 'Endurance of the NPC', example: 5 })
+  @IsNumber()
+  @IsOptional()
+  endurance: number;
 
   @ApiProperty({ description: 'Skills of the NPC', type: [NpcSkillDto] })
   @IsArray()
@@ -57,16 +84,23 @@ export class CreateNpcDto {
 
   static toCommand(dto: CreateNpcDto, userId: string, roles: string[]): CreateNpcCommand {
     return new CreateNpcCommand(
-      dto.realmId,
-      dto.name,
-      dto.level,
-      dto.db,
-      dto.at,
-      dto.skills ? dto.skills.map((skill) => NpcSkillDto.toDomain(skill)) : [],
-      dto.items ? dto.items.map((item) => NpcItemDto.toDomain(item)) : [],
-      dto.attacks ? dto.attacks.map((attack) => NpcAttackDto.toDomain(attack)) : [],
-      dto.description,
-      dto.imageUrl,
+      {
+        realmId: dto.realmId,
+        category: dto.category,
+        outlookType: dto.outlookType,
+        name: dto.name,
+        level: dto.level,
+        hp: dto.hp,
+        db: dto.db,
+        at: dto.at,
+        initiative: dto.initiative,
+        endurance: dto.endurance,
+        skills: dto.skills ? dto.skills.map(skill => NpcSkillDto.toDomain(skill)) : [],
+        items: dto.items ? dto.items.map(item => NpcItemDto.toDomain(item)) : [],
+        attacks: dto.attacks ? dto.attacks.map(attack => NpcAttackDto.toDomain(attack)) : [],
+        description: dto.description,
+        imageUrl: dto.imageUrl,
+      },
       userId,
       roles,
     );

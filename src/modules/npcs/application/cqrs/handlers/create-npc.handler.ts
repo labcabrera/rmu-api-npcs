@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
-import type { NpcEventBusPort } from '../../ports/npc-event-bus.port';
+import type { NpcEventBusPort } from '../../ports/npc.event-bus.port';
 import type { NpcRepository } from '../../ports/npc.repository';
 import { CreateNpcCommand } from '../commands/create-npc.command';
 
@@ -15,10 +15,15 @@ export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> 
   async execute(command: CreateNpcCommand): Promise<Npc> {
     const npc = Npc.create({
       realmId: command.realmId,
+      category: command.category,
+      outlookType: command.outlookType,
       name: command.name,
       level: command.level,
+      hp: command.hp,
       db: command.db || 0,
       at: command.at || 1,
+      initiative: command.initiative || 0,
+      endurance: command.endurance || 0,
       skills: command.skills || [],
       items: command.items || [],
       attacks: command.attacks || [],
@@ -27,7 +32,7 @@ export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> 
       owner: command.userId,
     });
     const saved = await this.repo.save(npc);
-    npc.getUncommittedEvents().forEach((event) => this.eventBus.publish(event));
+    npc.getUncommittedEvents().forEach(event => this.eventBus.publish(event));
     return saved;
   }
 }

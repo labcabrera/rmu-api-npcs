@@ -1,0 +1,1 @@
+export type NpcBiomeType = 'A' | 'O' | 'U' | 'B' | 'I' | 'T' | 'F' | 'P' | 'X' | 'D' | 'J' | 'S' | 'C' | 'E' | 'G' | 'H' | 'R' | 'V' | 'Z';

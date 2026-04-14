@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginationDto } from '../../../../shared/infrastructure/controller/dto';
+import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
+import type { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
+import type { NpcOutlookType } from '../../../domain/value-objects/npc-outlook-type.dto';
 import { NpcAttackDto } from './npc-attack.dto';
 import { NpcItemDto } from './npc-item.dto';
 import { NpcSkillDto } from './npc-skill.dto';
@@ -12,17 +14,32 @@ export class NpcDto {
   @ApiProperty({ description: 'Realm identifier', example: 'realm-789' })
   realmId: string;
 
+  @ApiProperty({ description: 'NPC category', example: 'humanoid' })
+  category: NpcCategory;
+
+  @ApiProperty({ description: 'NPC outlook type', example: 'aggressive' })
+  outlookType: NpcOutlookType;
+
   @ApiProperty({ description: 'NPC name', example: 'Goblin Warrior' })
   name: string;
 
   @ApiProperty({ description: 'NPC level', example: 5 })
   level: number;
 
+  @ApiProperty({ description: 'Hit points', example: 50 })
+  hp: number;
+
   @ApiProperty({ description: 'Defensive bonus', example: 10 })
   db: number;
 
   @ApiProperty({ description: 'Armor type', example: 5 })
   at: number;
+
+  @ApiProperty({ description: 'NPC initiative', example: 5 })
+  initiative: number;
+
+  @ApiProperty({ description: 'NPC endurance', example: 50 })
+  endurance: number;
 
   @ApiProperty({ type: [NpcSkillDto], description: 'NPC skills' })
   skills: NpcSkillDto[];
@@ -45,11 +62,16 @@ export class NpcDto {
   static fromEntity(entity: Npc): NpcDto {
     return {
       id: entity.id,
+      category: entity.category,
       realmId: entity.realmId,
+      outlookType: entity.outlookType,
       name: entity.name,
       level: entity.level,
+      hp: entity.hp,
       db: entity.db,
       at: entity.at,
+      initiative: entity.initiative,
+      endurance: entity.endurance,
       skills: entity.skills,
       items: entity.items,
       attacks: entity.attacks,
