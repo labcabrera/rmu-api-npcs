@@ -33,13 +33,7 @@ const CommandHandlers = [
 const QueryHandlers = [GetNpcHandler, GetNpcsHandler];
 
 @Module({
-  imports: [
-    TerminusModule,
-    CqrsModule,
-    MongooseModule.forFeature([{ name: NpcModel.name, schema: NpcSchema }]),
-    AuthModule,
-    SharedModule,
-  ],
+  imports: [TerminusModule, CqrsModule, MongooseModule.forFeature([{ name: NpcModel.name, schema: NpcSchema }]), AuthModule, SharedModule],
   controllers: [NpcController, NpcSkillController, NpcAttackController],
   providers: [
     ...CommandHandlers,

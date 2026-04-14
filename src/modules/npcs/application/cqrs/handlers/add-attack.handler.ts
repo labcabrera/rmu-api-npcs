@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundError, ValidationError } from '../../../../shared/domain/errors';
+import { NotFoundError, ValidationError } from '../../../../shared/domain/errors/errors';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
 import { NpcAttack } from '../../../domain/value-objects/npc-attack.vo';
 import type { AttackTablePort } from '../../ports/attack-table.port';
@@ -33,7 +33,7 @@ export class AddAttackHandler implements ICommandHandler<AddAttackCommand, Npc> 
     );
     npc.addAttack(npcAttack);
     const saved = await this.repo.update(npc.id, npc);
-    npc.getUncommittedEvents().forEach((event) => this.eventBus.publish(event));
+    npc.getUncommittedEvents().forEach(event => this.eventBus.publish(event));
     return saved;
   }
 

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginationDto } from '../../../../shared/infrastructure/controller/dto';
+import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
 import type { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
 import type { NpcOutlookType } from '../../../domain/value-objects/npc-outlook-type.dto';

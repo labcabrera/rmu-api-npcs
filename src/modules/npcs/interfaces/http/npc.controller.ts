@@ -2,18 +2,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import {
-  ApiBody,
-  ApiNotFoundResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
+import { ApiBody, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.auth.guard';
-import { Page } from '../../../shared/domain/entities/page.entity';
-import { ErrorDto, PagedQueryDto } from '../../../shared/infrastructure/controller/dto';
+import { Page } from '../../../shared/domain/entities/page';
+import { ErrorDto } from '../../../shared/interfaces/http/dto/error-dto';
+import { PagedQueryDto } from '../../../shared/interfaces/http/dto/paged-rsql-query';
 import { CreateNpcCommand } from '../../application/cqrs/commands/create-npc.command';
 import { DeleteNpcCommand } from '../../application/cqrs/commands/delete-npc.command';
 import { UpdateNpcCommand } from '../../application/cqrs/commands/update-npc.command';
@@ -54,7 +47,7 @@ export class NpcController {
     const roles: string[] = req.user!.roles as string[];
     const query = new GetNpcsQuery(dto.q, dto.page, dto.size, userId, roles);
     const page = await this.queryBus.execute<GetNpcsQuery, Page<Npc>>(query);
-    const mapped = page.content.map((Npc) => NpcDto.fromEntity(Npc));
+    const mapped = page.content.map(Npc => NpcDto.fromEntity(Npc));
     return new Page<NpcDto>(mapped, page.pagination.page, page.pagination.size, page.pagination.totalElements);
   }
 

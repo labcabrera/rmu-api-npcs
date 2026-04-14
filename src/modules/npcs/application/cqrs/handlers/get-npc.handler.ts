@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { NotFoundError } from '../../../../shared/domain/errors';
+import { NotFoundError } from '../../../../shared/domain/errors/errors';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
 import type { NpcRepository } from '../../ports/npc.repository';
 import { GetNpcQuery } from '../queries/get-npc.query';

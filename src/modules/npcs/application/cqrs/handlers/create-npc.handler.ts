@@ -32,7 +32,7 @@ export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> 
       owner: command.userId,
     });
     const saved = await this.repo.save(npc);
-    npc.getUncommittedEvents().forEach((event) => this.eventBus.publish(event));
+    npc.getUncommittedEvents().forEach(event => this.eventBus.publish(event));
     return saved;
   }
 }

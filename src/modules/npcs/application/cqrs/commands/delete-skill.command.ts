@@ -1,8 +1,12 @@
-export class DeleteSkillCommand {
+import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command';
+
+export class DeleteSkillCommand extends AuthenticatedCommand {
   constructor(
-    readonly npcId: string,
-    readonly skillId: string,
-    readonly userId: string,
-    readonly roles: string[],
-  ) {}
+    public readonly npcId: string,
+    public readonly skillId: string,
+    userId: string,
+    roles: string[],
+  ) {
+    super(userId, roles);
+  }
 }

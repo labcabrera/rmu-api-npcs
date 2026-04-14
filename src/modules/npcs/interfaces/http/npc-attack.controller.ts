@@ -1,21 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import {
-  Body,
-  Controller,
-  Delete,
-  HttpCode,
-  HttpStatus,
-  Logger,
-  Param,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, HttpStatus, Logger, Param, Post, Request, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.auth.guard';
-import type { AuthRequest } from '../../../shared/infrastructure/controller/auth-request';
 import { AddAttackCommand } from '../../application/cqrs/commands/add-attack.command';
 import { DeleteAttackCommand } from '../../application/cqrs/commands/delete-attack.command';
 import { Npc } from '../../domain/aggregates/npc.aggregate';
@@ -38,9 +25,11 @@ export class NpcAttackController {
   @ApiOperation({ operationId: 'addAttack', summary: 'Add an attack to an NPC' })
   @ApiResponse({ type: NpcDto, description: 'Attack added successfully' })
   @HttpCode(HttpStatus.OK)
-  async addAttack(@Param('id') npcId: string, @Body() dto: AddAttackDto, @Request() req: AuthRequest): Promise<NpcDto> {
+  async addAttack(@Param('id') npcId: string, @Body() dto: AddAttackDto, @Request() req): Promise<NpcDto> {
     this.logger.log(`Adding attack to NPC with ID: ${npcId}`);
-    const command = AddAttackDto.toCommand(npcId, dto, req.user.id, req.user.roles);
+    const userId: string = req.user!.id as string;
+    const roles: string[] = req.user!.roles as string[];
+    const command = AddAttackDto.toCommand(npcId, dto, userId, roles);
     const entity = await this.commandBus.execute<AddAttackCommand, Npc>(command);
     return NpcDto.fromEntity(entity);
   }
@@ -49,13 +38,11 @@ export class NpcAttackController {
   @ApiOperation({ operationId: 'deleteAttack', summary: 'Delete an attack from an NPC' })
   @ApiResponse({ type: NpcDto, description: 'Attack deleted successfully' })
   @HttpCode(HttpStatus.OK)
-  async deleteAttack(
-    @Param('id') npcId: string,
-    @Param('attackId') attackId: string,
-    @Request() req: AuthRequest,
-  ): Promise<NpcDto> {
+  async deleteAttack(@Param('id') npcId: string, @Param('attackId') attackId: string, @Request() req): Promise<NpcDto> {
     this.logger.log(`Deleting attack with ID: ${attackId} from NPC with ID: ${npcId}`);
-    const command = new DeleteAttackCommand(npcId, attackId, req.user.id, req.user.roles);
+    const userId: string = req.user!.id as string;
+    const roles: string[] = req.user!.roles as string[];
+    const command = new DeleteAttackCommand(npcId, attackId, userId, roles);
     const entity = await this.commandBus.execute<DeleteAttackCommand, Npc>(command);
     return NpcDto.fromEntity(entity);
   }

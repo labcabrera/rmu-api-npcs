@@ -1,10 +1,14 @@
-export class AddSkillCommand {
+import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command';
+
+export class AddSkillCommand extends AuthenticatedCommand {
   constructor(
-    readonly npcId: string,
-    readonly skillId: string,
-    readonly ranks: number | undefined,
-    readonly bonus: number,
-    readonly userId: string,
-    readonly roles: string[],
-  ) {}
+    public readonly npcId: string,
+    public readonly skillId: string,
+    public readonly ranks: number | undefined,
+    public readonly bonus: number,
+    userId: string,
+    roles: string[],
+  ) {
+    super(userId, roles);
+  }
 }

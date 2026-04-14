@@ -1,6 +1,7 @@
+import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command';
 import { AttackType } from '../../../domain/value-objects/attack-type.vo';
 
-export class AddAttackCommand {
+export class AddAttackCommand extends AuthenticatedCommand {
   constructor(
     public readonly npcId: string,
     public readonly attackName: string,
@@ -10,7 +11,9 @@ export class AddAttackCommand {
     public readonly attackSize: number,
     public readonly bo: number,
     public readonly fumble: number,
-    public readonly userId: string,
-    public readonly roles: string[],
-  ) {}
+    userId: string,
+    roles: string[],
+  ) {
+    super(userId, roles);
+  }
 }

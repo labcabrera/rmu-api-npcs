@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundError } from '../../../../shared/domain/errors';
+import { NotFoundError } from '../../../../shared/domain/errors/errors';
 import type { NpcRepository } from '../../ports/npc.repository';
 import { DeleteNpcCommand } from '../commands/delete-npc.command';
 

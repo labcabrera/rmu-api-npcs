@@ -1,10 +1,11 @@
-import { NpcProps } from '../../../domain/aggregates/npc.aggregate';
+import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command';
+import { NpcProps } from '../../../domain/aggregates/npc-props';
 import { NpcAttack } from '../../../domain/value-objects/npc-attack.vo';
 import { NpcItem } from '../../../domain/value-objects/npc-item.vo';
 import { NpcOutlookType } from '../../../domain/value-objects/npc-outlook-type.dto';
 import { NpcSkill } from '../../../domain/value-objects/npc-skill.vo';
 
-export class UpdateNpcCommand {
+export class UpdateNpcCommand extends AuthenticatedCommand {
   public readonly id: string;
   public readonly outlookType: NpcOutlookType | undefined;
   public readonly name: string | undefined;
@@ -19,8 +20,6 @@ export class UpdateNpcCommand {
   public readonly attacks: NpcAttack[] | undefined;
   public readonly description: string | undefined;
   public readonly imageUrl: string | undefined;
-  public readonly userId: string;
-  public readonly roles: string[];
 
   constructor(
     id: string,
@@ -28,6 +27,7 @@ export class UpdateNpcCommand {
     userId: string,
     roles: string[],
   ) {
+    super(userId, roles);
     this.id = id;
     this.outlookType = props.outlookType;
     this.name = props.name;
@@ -42,7 +42,5 @@ export class UpdateNpcCommand {
     this.attacks = props.attacks;
     this.description = props.description;
     this.imageUrl = props.imageUrl;
-    this.userId = userId;
-    this.roles = roles;
   }
 }

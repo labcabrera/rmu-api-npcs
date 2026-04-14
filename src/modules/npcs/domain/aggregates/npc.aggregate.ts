@@ -1,7 +1,6 @@
-import { AggregateRoot } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
-import { ValidationError } from '../../../shared/domain/errors';
-import { DomainEvent } from '../../../shared/domain/events/domain-event';
+import { BaseAggregateRoot } from '../../../shared/domain/aggregates/base-aggregate';
+import { ValidationError } from '../../../shared/domain/errors/errors';
 import { NpcCreatedEvent } from '../events/npc-created.event';
 import { NpcUpdatedEvent } from '../events/npc-updated.event';
 import { NpcAttack } from '../value-objects/npc-attack.vo';
@@ -9,32 +8,11 @@ import { NpcCategory } from '../value-objects/npc-category.vo';
 import { NpcItem } from '../value-objects/npc-item.vo';
 import { NpcOutlookType } from '../value-objects/npc-outlook-type.dto';
 import { NpcSkill } from '../value-objects/npc-skill.vo';
+import { NpcProps } from './npc-props';
 
-export interface NpcProps {
-  id: string;
-  realmId: string;
-  category: NpcCategory;
-  outlookType: NpcOutlookType;
-  name: string;
-  level: number;
-  hp: number;
-  db: number;
-  at: number;
-  initiative: number;
-  endurance: number;
-  skills: NpcSkill[];
-  items: NpcItem[];
-  attacks: NpcAttack[];
-  description: string | undefined;
-  imageUrl: string | undefined;
-  owner: string;
-  createdAt: Date;
-  updatedAt: Date | undefined;
-}
-
-export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
+export class Npc extends BaseAggregateRoot<NpcProps> {
   private constructor(
-    public readonly id: string,
+    id: string,
     public readonly realmId: string,
     public category: NpcCategory,
     public outlookType: NpcOutlookType,
@@ -54,7 +32,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     public createdAt: Date,
     public updatedAt: Date | undefined,
   ) {
-    super();
+    super(id);
   }
 
   static create(props: Omit<NpcProps, 'id' | 'createdAt' | 'updatedAt'>): Npc {
@@ -79,13 +57,12 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
       new Date(),
       undefined,
     );
-    npc.apply(new NpcCreatedEvent(npc.toProps()));
+    npc.apply(new NpcCreatedEvent(npc.getProps()));
     return npc;
   }
 
   update(props: Partial<Omit<NpcProps, 'id' | 'realmId' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
-    const { outlookType, name, level, hp, db, at, initiative, endurance, skills, attacks, description, imageUrl } =
-      props;
+    const { outlookType, name, level, hp, db, at, initiative, endurance, skills, attacks, description, imageUrl } = props;
     if (outlookType) this.outlookType = outlookType;
     if (name) this.name = name;
     if (level) this.level = level;
@@ -99,45 +76,45 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     if (description !== undefined) this.description = description;
     if (imageUrl !== undefined) this.imageUrl = imageUrl;
     this.updatedAt = new Date();
-    this.apply(new NpcUpdatedEvent(this.toProps()));
+    this.apply(new NpcUpdatedEvent(this.getProps()));
   }
 
   addSkill(skill: NpcSkill): void {
-    if (this.skills.some((s) => s.skillId === skill.skillId)) {
+    if (this.skills.some(s => s.skillId === skill.skillId)) {
       throw new ValidationError(`Skill with id ${skill.skillId} already exists`);
     }
     this.skills.push(skill);
     this.updatedAt = new Date();
-    this.apply(new NpcUpdatedEvent(this.toProps()));
+    this.apply(new NpcUpdatedEvent(this.getProps()));
   }
 
   deleteSkill(skillId: string) {
-    const index = this.skills.findIndex((s) => s.skillId === skillId);
+    const index = this.skills.findIndex(s => s.skillId === skillId);
     if (index === -1) {
       throw new ValidationError(`Skill with id ${skillId} does not exist`);
     }
     this.skills.splice(index, 1);
     this.updatedAt = new Date();
-    this.apply(new NpcUpdatedEvent(this.toProps()));
+    this.apply(new NpcUpdatedEvent(this.getProps()));
   }
 
   addAttack(attack: NpcAttack): void {
-    if (this.attacks.some((a) => a.attackName === attack.attackName)) {
+    if (this.attacks.some(a => a.attackName === attack.attackName)) {
       throw new ValidationError(`Attack with name ${attack.attackName} already exists`);
     }
     this.attacks.push(attack);
     this.updatedAt = new Date();
-    this.apply(new NpcUpdatedEvent(this.toProps()));
+    this.apply(new NpcUpdatedEvent(this.getProps()));
   }
 
   deleteAttack(attackName: string): void {
-    const index = this.attacks.findIndex((a) => a.attackName === attackName);
+    const index = this.attacks.findIndex(a => a.attackName === attackName);
     if (index === -1) {
       throw new ValidationError(`Attack with name ${attackName} does not exist`);
     }
     this.attacks.splice(index, 1);
     this.updatedAt = new Date();
-    this.apply(new NpcUpdatedEvent(this.toProps()));
+    this.apply(new NpcUpdatedEvent(this.getProps()));
   }
 
   static fromProps(props: NpcProps): Npc {
@@ -164,7 +141,7 @@ export class Npc extends AggregateRoot<DomainEvent<NpcProps>> {
     );
   }
 
-  toProps(): NpcProps {
+  getProps(): NpcProps {
     return {
       id: this.id,
       realmId: this.realmId,

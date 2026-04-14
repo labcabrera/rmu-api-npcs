@@ -1,11 +1,12 @@
-import { NpcProps } from '../../../domain/aggregates/npc.aggregate';
+import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command';
+import { NpcProps } from '../../../domain/aggregates/npc-props';
 import { NpcAttack } from '../../../domain/value-objects/npc-attack.vo';
 import { NpcCategory } from '../../../domain/value-objects/npc-category.vo';
 import { NpcItem } from '../../../domain/value-objects/npc-item.vo';
 import { NpcOutlookType } from '../../../domain/value-objects/npc-outlook-type.dto';
 import { NpcSkill } from '../../../domain/value-objects/npc-skill.vo';
 
-export class CreateNpcCommand {
+export class CreateNpcCommand extends AuthenticatedCommand {
   public readonly realmId: string;
   public readonly category: NpcCategory;
   public readonly outlookType: NpcOutlookType;
@@ -21,10 +22,9 @@ export class CreateNpcCommand {
   public readonly attacks: NpcAttack[] | undefined;
   public readonly description: string | undefined;
   public readonly imageUrl: string | undefined;
-  public readonly userId: string;
-  public readonly roles: string[];
 
   constructor(props: Omit<NpcProps, 'id' | 'createdAt' | 'updatedAt' | 'owner'>, userId: string, roles: string[]) {
+    super(userId, roles);
     this.realmId = props.realmId;
     this.category = props.category;
     this.outlookType = props.outlookType;
@@ -40,7 +40,5 @@ export class CreateNpcCommand {
     this.attacks = props.attacks;
     this.description = props.description;
     this.imageUrl = props.imageUrl;
-    this.userId = userId;
-    this.roles = roles;
   }
 }

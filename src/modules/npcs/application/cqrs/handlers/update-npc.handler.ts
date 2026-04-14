@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundError } from '../../../../shared/domain/errors';
+import { NotFoundError } from '../../../../shared/domain/errors/errors';
 import { Npc } from '../../../domain/aggregates/npc.aggregate';
 import type { NpcEventBusPort } from '../../ports/npc.event-bus.port';
 import type { NpcRepository } from '../../ports/npc.repository';
@@ -33,7 +33,7 @@ export class UpdateNpcHandler implements ICommandHandler<UpdateNpcCommand, Npc> 
       imageUrl: command.imageUrl,
     });
     const saved = await this.repo.update(npc.id, npc);
-    npc.getUncommittedEvents().forEach((event) => this.eventBus.publish(event));
+    npc.getUncommittedEvents().forEach(event => this.eventBus.publish(event));
     return saved;
   }
 }
