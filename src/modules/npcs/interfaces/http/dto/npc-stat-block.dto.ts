@@ -18,7 +18,7 @@ import type {
   NpcTalent,
 } from '../../../domain/value-objects/npc-stat-block.vo.js';
 import {
-  BIOMES,
+  BIOME_CODES,
   CREATURE_SIZES,
   CRITICAL_IMMUNITIES,
   MOVEMENT_MODES,
@@ -124,14 +124,15 @@ export class NpcShieldDto implements NpcShield {
 }
 
 export class NpcPoisonDto implements NpcPoison {
-  @ApiProperty({ example: 'nerve' })
+  @ApiPropertyOptional({ type: String, nullable: true, example: 'nerve' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  type: string;
+  type: string | null;
 
-  @ApiProperty({ example: -20 })
+  @ApiPropertyOptional({ type: Number, nullable: true, example: -20 })
+  @IsOptional()
   @IsNumber()
-  rrModifier: number;
+  rrModifier: number | null;
 }
 
 export class NpcAttackDto implements NpcAttack {
@@ -210,7 +211,7 @@ export class NpcAttackDto implements NpcAttack {
       cooperation: dto.cooperation ?? null,
       kata: dto.kata ?? null,
       alternativeTo: dto.alternativeTo ?? null,
-      poison: dto.poison ? { type: dto.poison.type, rrModifier: dto.poison.rrModifier } : null,
+      poison: dto.poison ? { type: dto.poison.type ?? null, rrModifier: dto.poison.rrModifier ?? null } : null,
       hand: dto.hand ?? null,
       notation: dto.notation ?? null,
     };
@@ -286,9 +287,9 @@ export class NpcEncounterDto implements NpcEncounter {
   @IsString()
   dice: string | null;
 
-  @ApiProperty({ enum: BIOMES, isArray: true })
+  @ApiProperty({ enum: BIOME_CODES, isArray: true })
   @IsArray()
-  @IsIn(BIOMES, { each: true })
+  @IsIn(BIOME_CODES, { each: true })
   biomes: Biome[];
 
   @ApiPropertyOptional({ type: Number, nullable: true, example: -10 })

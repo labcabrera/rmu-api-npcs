@@ -34,9 +34,10 @@ export interface NpcShield {
   bonus: number;
 }
 
+/** `[Poison, Nerve, -20]`; the book leaves out the type or the modifier of some poisons (`[Poison]`). */
 export interface NpcPoison {
-  type: string;
-  rrModifier: number;
+  type: string | null;
+  rrModifier: number | null;
 }
 
 /**

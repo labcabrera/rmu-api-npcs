@@ -114,4 +114,6 @@ export type CriticalImmunity = (typeof CRITICAL_IMMUNITIES)[number];
 
 /** Biome and location codes of Table T-3.1g. */
 export const BIOMES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'X', 'Z'] as const;
-export type Biome = (typeof BIOMES)[number];
+/** A lower-case `w` after a code is a body of water within that biome (`Fw`). */
+export const BIOME_CODES = [...BIOMES, ...BIOMES.map(code => `${code}w` as const)];
+export type Biome = (typeof BIOMES)[number] | `${(typeof BIOMES)[number]}w`;
