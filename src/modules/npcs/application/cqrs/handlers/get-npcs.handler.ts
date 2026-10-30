@@ -1,16 +1,20 @@
 import { Inject } from '@nestjs/common';
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Page } from '../../../../shared/domain/entities/page';
-import { Npc } from '../../../domain/aggregates/npc.aggregate';
-import type { NpcRepository } from '../../ports/npc.repository';
-import { GetNpcsQuery } from '../queries/get-npcs.query';
+import { type IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Npc } from '../../../domain/aggregates/npc.aggregate.js';
+import { type NpcRepository, NPC_REPOSITORY } from '../../ports/npc-repository.port.js';
+import { type NpcGuardPort, NPC_GUARD } from '../../ports/npc-guard.port.js';
+import { GetNpcsQuery } from '../queries/get-npcs.query.js';
+import { Page } from '../../../../shared/application/pagination/page.js';
 
 @QueryHandler(GetNpcsQuery)
 export class GetNpcsHandler implements IQueryHandler<GetNpcsQuery, Page<Npc>> {
-  constructor(@Inject('NpcRepository') private readonly npcRepository: NpcRepository) {}
+  constructor(
+    @Inject(NPC_REPOSITORY) private readonly npcRepository: NpcRepository,
+    @Inject(NPC_GUARD) private readonly npcGuard: NpcGuardPort,
+  ) {}
+
   async execute(query: GetNpcsQuery): Promise<Page<Npc>> {
-    const filter = {};
-    const sort = { name: 1 };
-    return await this.npcRepository.findByRsql(query.rsql, query.page, query.size, filter, sort);
+    const filter = this.npcGuard.buildQueryPredicate(query.userId, query.roles);
+    return await this.npcRepository.findByRsql(query.rsql, query.page, query.size, filter);
   }
 }

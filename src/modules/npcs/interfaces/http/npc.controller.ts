@@ -1,91 +1,85 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiBody, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/auth/jwt.auth.guard';
-import { Page } from '../../../shared/domain/entities/page';
-import { ErrorDto } from '../../../shared/interfaces/http/dto/error-dto';
-import { PagedQueryDto } from '../../../shared/interfaces/http/dto/paged-rsql-query';
-import { CreateNpcCommand } from '../../application/cqrs/commands/create-npc.command';
-import { DeleteNpcCommand } from '../../application/cqrs/commands/delete-npc.command';
-import { UpdateNpcCommand } from '../../application/cqrs/commands/update-npc.command';
-import { GetNpcQuery } from '../../application/cqrs/queries/get-npc.query';
-import { GetNpcsQuery } from '../../application/cqrs/queries/get-npcs.query';
-import { Npc } from '../../domain/aggregates/npc.aggregate';
-import { CreateNpcDto } from './dtos/create-npc.dto';
-import { NpcDto, NpcPageDto } from './dtos/npc.dto';
-import { UpdateNpcDto } from './dtos/update-npc.dto';
+import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../shared/infrastructure/security/jwt-auth.guard.js';
+import { ApiErrors } from '../../../shared/interfaces/http/api-errors.decorator.js';
+import type { AuthenticatedUser } from '../../../shared/interfaces/http/authenticated-request.js';
+import { CurrentUser } from '../../../shared/interfaces/http/current-user.decorator.js';
+import { CatalogPagedQueryDto } from '../../../shared/interfaces/http/dto/paged-rsql-query.js';
+import { Page } from '../../../shared/application/pagination/page.js';
+import { CreateNpcCommand } from '../../application/cqrs/commands/create-npc.command.js';
+import { DeleteNpcCommand } from '../../application/cqrs/commands/delete-npc.command.js';
+import { UpdateNpcCommand } from '../../application/cqrs/commands/update-npc.command.js';
+import { GetNpcQuery } from '../../application/cqrs/queries/get-npc.query.js';
+import { GetNpcsQuery } from '../../application/cqrs/queries/get-npcs.query.js';
+import { Npc } from '../../domain/aggregates/npc.aggregate.js';
+import { CreateNpcDto } from './dto/create-npc.dto.js';
+import { NpcDto, NpcPageDto } from './dto/npc.dto.js';
+import { UpdateNpcDto } from './dto/update-npc.dto.js';
 
 @UseGuards(JwtAuthGuard)
 @Controller('v1/npcs')
-@ApiTags('Npcs')
+@ApiTags('NPCs')
 export class NpcController {
   constructor(
-    private commandBus: CommandBus,
-    private queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Get(':id')
   @ApiOperation({ operationId: 'findNpcById', summary: 'Find NPC by id' })
-  @ApiOkResponse({ type: NpcDto, description: 'Success' })
-  @ApiUnauthorizedResponse({ description: 'Invalid or missing authentication token', type: ErrorDto })
-  @ApiNotFoundResponse({ description: 'NPC not found', type: ErrorDto })
-  async findById(@Param('id') id: string, @Request() req) {
-    const query = new GetNpcQuery(id, req.user!.id as string, req.user!.roles as string[]);
-    const entity = await this.queryBus.execute<GetNpcQuery, Npc>(query);
-    return NpcDto.fromEntity(entity);
+  @ApiOkResponse({ type: NpcDto })
+  @ApiErrors({ 404: 'NPC not found', 403: 'A private NPC of another user' })
+  async findById(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    const npc = await this.queryBus.execute<GetNpcQuery, Npc>(new GetNpcQuery(id, user.id, user.roles));
+    return NpcDto.fromEntity(npc);
   }
 
   @Get('')
-  @ApiOperation({ operationId: 'findNpcs', summary: 'Find NPCs by RSQL' })
-  @ApiOkResponse({ type: NpcPageDto, description: 'Success' })
-  @ApiUnauthorizedResponse({ description: 'Invalid or missing authentication token', type: ErrorDto })
-  @ApiResponse({ status: 400, description: 'Invalid RSQL query', type: ErrorDto })
-  async find(@Query() dto: PagedQueryDto, @Request() req) {
-    const userId: string = req.user!.id as string;
-    const roles: string[] = req.user!.roles as string[];
-    const query = new GetNpcsQuery(dto.q, dto.page, dto.size, userId, roles);
-    const page = await this.queryBus.execute<GetNpcsQuery, Page<Npc>>(query);
-    const mapped = page.content.map(Npc => NpcDto.fromEntity(Npc));
+  @ApiOperation({ operationId: 'findNpcs', summary: 'Find NPCs by RSQL: the public catalog and your own' })
+  @ApiOkResponse({ type: NpcPageDto })
+  @ApiErrors({ 400: 'Invalid RSQL query' })
+  // Up to 1000: the catalog of generic creatures is loaded whole.
+  async find(@Query() dto: CatalogPagedQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    const page = await this.queryBus.execute<GetNpcsQuery, Page<Npc>>(new GetNpcsQuery(dto.q, dto.page, dto.size, user.id, user.roles));
+    const mapped = page.content.map(npc => NpcDto.fromEntity(npc));
     return new Page<NpcDto>(mapped, page.pagination.page, page.pagination.size, page.pagination.totalElements);
   }
 
   @Post('')
-  @ApiBody({ type: CreateNpcDto })
-  @ApiOperation({ operationId: 'createNpc', summary: 'Create a new NPC' })
-  @ApiOkResponse({ type: NpcDto, description: 'Success' })
-  @ApiUnauthorizedResponse({ description: 'Invalid or missing authentication token', type: ErrorDto })
-  @ApiResponse({ status: 400, description: 'Bad request, invalid data', type: ErrorDto })
-  async create(@Body() dto: CreateNpcDto, @Request() req) {
-    const user = req.user!;
-    const command = CreateNpcDto.toCommand(dto, user.id as string, user.roles as string[]);
-    const entity = await this.commandBus.execute<CreateNpcCommand, Npc>(command);
-    return NpcDto.fromEntity(entity);
+  @ApiOperation({ operationId: 'createNpc', summary: 'Create an NPC' })
+  @ApiCreatedResponse({ type: NpcDto, description: 'Created' })
+  @ApiErrors({
+    400: 'Bad request, invalid data or unknown realm',
+    403: 'Without rmu-user or rmu-admin, or a public NPC without rmu-admin',
+    502: 'Core did not answer the realm check',
+    504: 'Core did not answer the realm check in time',
+  })
+  async create(@Body() dto: CreateNpcDto, @CurrentUser() user: AuthenticatedUser) {
+    const npc = await this.commandBus.execute<CreateNpcCommand, Npc>(CreateNpcDto.toCommand(dto, user.id, user.roles));
+    return NpcDto.fromEntity(npc);
   }
 
   @Patch(':id')
-  @ApiOperation({ operationId: 'updateNpc', summary: 'Update NPC' })
+  @ApiOperation({ operationId: 'updateNpc', summary: 'Update an NPC: the lists sent replace the stored ones' })
   @ApiOkResponse({ type: NpcDto, description: 'Success' })
-  @ApiUnauthorizedResponse({ description: 'Invalid or missing authentication token', type: ErrorDto })
-  @ApiNotFoundResponse({ description: 'NPC not found', type: ErrorDto })
-  @ApiResponse({ status: 400, description: 'Bad request, invalid data', type: ErrorDto })
-  async updateSettings(@Param('id') id: string, @Body() dto: UpdateNpcDto, @Request() req) {
-    const user = req.user!;
-    const command = UpdateNpcDto.toCommand(id, dto, user.id as string, user.roles as string[]);
-    const entity = await this.commandBus.execute<UpdateNpcCommand, Npc>(command);
-    return NpcDto.fromEntity(entity);
+  @ApiErrors({
+    404: 'NPC not found',
+    400: 'Bad request, invalid data',
+    403: 'Not the owner or an admin, or a public NPC without rmu-admin',
+    409: 'The NPC changed since the version sent',
+  })
+  async update(@Param('id') id: string, @Body() dto: UpdateNpcDto, @CurrentUser() user: AuthenticatedUser) {
+    const npc = await this.commandBus.execute<UpdateNpcCommand, Npc>(UpdateNpcDto.toCommand(id, dto, user.id, user.roles));
+    return NpcDto.fromEntity(npc);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  @ApiOperation({ operationId: 'deleteNpc', summary: 'Delete NPC by id' })
-  @ApiUnauthorizedResponse({ description: 'Invalid or missing authentication token', type: ErrorDto })
-  @ApiNotFoundResponse({ description: 'Npc not found', type: ErrorDto })
-  async delete(@Param('id') id: string, @Request() req) {
-    const user = req.user! as string;
-    const roles: string[] = req.user!.roles as string[];
-    const command = new DeleteNpcCommand(id, user, roles);
-    await this.commandBus.execute(command);
+  @ApiOperation({ operationId: 'deleteNpc', summary: 'Delete an NPC' })
+  @ApiNoContentResponse({ description: 'Deleted' })
+  @ApiErrors({ 404: 'NPC not found', 403: 'Not the owner or an admin, or a public NPC without rmu-admin' })
+  async delete(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    await this.commandBus.execute(new DeleteNpcCommand(id, user.id, user.roles));
   }
 }

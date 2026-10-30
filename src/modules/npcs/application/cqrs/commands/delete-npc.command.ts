@@ -1,11 +1,7 @@
-import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command';
-
-export class DeleteNpcCommand extends AuthenticatedCommand {
+export class DeleteNpcCommand {
   constructor(
     public readonly id: string,
-    userId: string,
-    roles: string[],
-  ) {
-    super(userId, roles);
-  }
+    public readonly userId: string,
+    public readonly roles: string[],
+  ) {}
 }
