@@ -43,6 +43,15 @@ describe('OpenAPI', () => {
     expect(schema('UpdateNpcDto').properties!.realmId).toBeUndefined();
   });
 
+  it('documents the encounter endpoints, with 200 for the stateless resolution (spec 061)', () => {
+    expect(operation('/v1/encounter-tables', 'get').security).toEqual([{ oauth2: [], 'access-token': [] }]);
+    expect(Object.keys(operation('/v1/encounter-tables/{id}', 'get').responses)).toContain('404');
+    expect(Object.keys(operation('/v1/encounter-settings', 'get').responses)).toContain('404');
+    expect(Object.keys(operation('/v1/encounters/resolve', 'post').responses)).toEqual(expect.arrayContaining(['200', '400', '404']));
+    expect(Object.keys(operation('/v1/encounters/resolve', 'post').responses)).not.toContain('201');
+    expect(schema('ResolveEncounterDto').properties!.rolls).toMatchObject({ type: 'array' });
+  });
+
   it('uses examples of NPCs in the error format', () => {
     expect(JSON.stringify(schema('ErrorDto'))).toMatch(/\/v1\/npcs\//);
   });
