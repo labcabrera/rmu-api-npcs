@@ -47,7 +47,10 @@ describe('validation', () => {
 
   it('validates the nested attacks', async () => {
     expect((await create(npcBody({ attacks: [{ ob: 10, size: 14, attackTable: 'bite' }] }))).status).toBe(400);
-    expect((await create(npcBody({ attacks: [{ ob: 10, size: 5 }] }))).status).toBe(400);
+    expect((await create(npcBody({ attacks: [{ ob: 10, size: 5, attackTable: '' }] }))).status).toBe(400);
+    expect((await create(npcBody({ attacks: [{ ob: 10, size: 5, attackTable: 7 }] }))).status).toBe(400);
+    // An attack with no table (spec 060) is valid
+    expect((await create(npcBody({ attacks: [{ ob: 10, size: 5 }] }))).status).toBe(201);
   });
 
   it('checks the rules of the domain', async () => {
