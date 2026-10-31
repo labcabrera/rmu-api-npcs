@@ -23,11 +23,14 @@ import {
   CRITICAL_IMMUNITIES,
   MOVEMENT_MODES,
   PACES,
+  SHIELD_TYPE_DB,
+  SHIELD_TYPES,
   TIERS,
   type Biome,
   type CriticalImmunity,
   type MovementMode,
   type Pace,
+  type ShieldType,
   type Tier,
 } from '../../../domain/value-objects/npc-types.vo.js';
 
@@ -107,20 +110,37 @@ export class NpcRunningDto implements NpcRunning {
   bonus: number;
 }
 
-export class NpcShieldDto implements NpcShield {
-  @ApiProperty({ example: 'normal' })
-  @IsString()
-  @IsNotEmpty()
-  type: string;
+/** `(N20+8/+60)`: a normal shield of DB 20, 8 ranks of Shield and a Shield bonus of +60 (ADR 0010). */
+export class NpcShieldDto {
+  @ApiProperty({ enum: SHIELD_TYPES, example: 'normal' })
+  @IsIn(SHIELD_TYPES)
+  type: ShieldType;
 
-  @ApiProperty({ example: 0 })
+  @ApiPropertyOptional({ type: Number, nullable: true, example: 20, description: 'DB of the shield; the one of its type when missing' })
+  @IsOptional()
   @IsInt()
   @Min(0)
-  ranks: number;
+  db?: number | null;
 
-  @ApiProperty({ example: 20 })
+  @ApiPropertyOptional({ type: Number, nullable: true, example: 8, description: 'Shield skill ranks' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  ranks?: number | null;
+
+  @ApiPropertyOptional({ type: Number, nullable: true, example: 60, description: 'Shield skill total bonus' })
+  @IsOptional()
   @IsNumber()
-  bonus: number;
+  bonus?: number | null;
+
+  static toEntity(dto: NpcShieldDto): NpcShield {
+    return {
+      type: dto.type,
+      db: dto.db ?? SHIELD_TYPE_DB[dto.type],
+      ranks: dto.ranks ?? null,
+      bonus: dto.bonus ?? null,
+    };
+  }
 }
 
 export class NpcPoisonDto implements NpcPoison {
