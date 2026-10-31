@@ -46,14 +46,16 @@ export interface NpcPoison {
 }
 
 /**
- * An attack of the stat block (`23B(6)bi`): OB, attack size class and attack table, plus the additions of section 3.1.
+ * An attack of the stat block (`23B(6)bi`): OB, attack size class and attack table (if it has one), plus the additions of
+ * section 3.1.
  * Only data: how tactical applies sequences, cooperation or katas is spec 055.
  */
 export interface NpcAttack {
   ob: number;
   /** Size class 1-13 of the attack (medium = 5). */
   size: number;
-  attackTable: string;
+  /** Attack table id; null for an attack with no table of its own (`we`, `rw`, special attacks). */
+  attackTable: string | null;
   fumbleTable: string | null;
   /** `[Cold]`: critical type of the additional critical. */
   additionalCritical: string | null;

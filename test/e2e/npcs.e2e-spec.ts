@@ -75,6 +75,48 @@ describe('NPCs', () => {
     expect(body).toMatchObject({ deathHits: null, name: 'E2E bear', version: 1 });
   });
 
+  it('stores, reads and patches attacks with no table (spec 060)', async () => {
+    const npc = await create('owner', {
+      attacks: [
+        { ob: 60, size: 5, attackTable: null, notation: '60we' },
+        { ob: 45, size: 5, notation: '45rw' },
+        { ob: 40, size: 6, attackTable: 'claw', notation: '40B(6)cl' },
+      ],
+    });
+    expect(npc.attacks).toEqual([
+      expect.objectContaining({ attackTable: null, notation: '60we' }),
+      expect.objectContaining({ attackTable: null, notation: '45rw' }),
+      expect.objectContaining({ attackTable: 'claw' }),
+    ]);
+    const read = await request(e2e.server).get(`/v1/npcs/${npc.id}`).set('Authorization', e2e.auth('owner'));
+    expect(read.status).toBe(200);
+    expect((read.body as NpcBody & { attacks: { attackTable: string | null }[] }).attacks.map(a => a.attackTable)).toEqual([
+      null,
+      null,
+      'claw',
+    ]);
+    const patched = await request(e2e.server)
+      .patch(`/v1/npcs/${npc.id}`)
+      .set('Authorization', e2e.auth('owner'))
+      .send({
+        attacks: [
+          { ob: 70, size: 7, attackTable: 'horn' },
+          { ob: 55, size: 5, attackTable: null, notation: '55se' },
+        ],
+        version: 0,
+      });
+    expect(patched.status).toBe(200);
+    expect((patched.body as NpcBody & { attacks: unknown[] }).attacks).toEqual([
+      expect.objectContaining({ attackTable: 'horn' }),
+      expect.objectContaining({ attackTable: null, notation: '55se' }),
+    ]);
+    const empty = await request(e2e.server)
+      .patch(`/v1/npcs/${npc.id}`)
+      .set('Authorization', e2e.auth('owner'))
+      .send({ attacks: [{ ob: 70, size: 7, attackTable: '' }], version: 1 });
+    expect(empty.status).toBe(400);
+  });
+
   it('rejects a PATCH on a stale version', async () => {
     const npc = await create('owner');
     const patch = (version: number) =>

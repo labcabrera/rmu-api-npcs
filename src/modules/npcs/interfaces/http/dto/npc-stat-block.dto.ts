@@ -166,10 +166,16 @@ export class NpcAttackDto implements NpcAttack {
   @Max(CREATURE_SIZES.length)
   size: number;
 
-  @ApiProperty({ description: 'Attack table id of rmu-api-attack-tables', example: 'bite' })
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description: 'Attack table id of rmu-api-attack-tables; null for an attack with no table (`we`, `rw`, special attacks)',
+    example: 'bite',
+  })
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  attackTable: string;
+  attackTable: string | null;
 
   @ApiPropertyOptional({ type: String, nullable: true, example: 'animals' })
   @IsOptional()
@@ -224,7 +230,7 @@ export class NpcAttackDto implements NpcAttack {
     return {
       ob: dto.ob,
       size: dto.size,
-      attackTable: dto.attackTable,
+      attackTable: dto.attackTable ?? null,
       fumbleTable: dto.fumbleTable ?? null,
       additionalCritical: dto.additionalCritical ?? null,
       sequence: dto.sequence ?? null,

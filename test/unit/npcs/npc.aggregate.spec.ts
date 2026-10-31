@@ -67,6 +67,13 @@ describe('Npc', () => {
     expect(npc.attacks).toHaveLength(2);
   });
 
+  it('accepts attacks with no table and keeps them on an update (spec 060)', () => {
+    const npc = Npc.create(creation({ attacks: [attack({ attackTable: null, notation: '60we' }), attack()] }));
+    expect(npc.attacks.map(a => a.attackTable)).toEqual([null, 'claw']);
+    npc.update({ attacks: [attack({ attackTable: null, alternativeTo: null }), attack({ attackTable: null, alternativeTo: 0 })] });
+    expect(npc.attacks.map(a => a.attackTable)).toEqual([null, null]);
+  });
+
   it('updates only the fields sent and validates the result', () => {
     const npc = Npc.fromProps(npcProps()).restoreVersion(0);
     npc.update({ level: 5, deathHits: undefined });

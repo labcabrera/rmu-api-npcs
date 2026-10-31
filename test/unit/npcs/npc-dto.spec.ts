@@ -1,4 +1,7 @@
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 import { CreateNpcDto, toNpcProps } from '../../../src/modules/npcs/interfaces/http/dto/create-npc.dto.js';
+import { NpcAttackDto } from '../../../src/modules/npcs/interfaces/http/dto/npc-stat-block.dto.js';
 import { UpdateNpcDto } from '../../../src/modules/npcs/interfaces/http/dto/update-npc.dto.js';
 import { npcBody } from '../../support/npc-fixtures.js';
 
@@ -55,6 +58,33 @@ describe('NPC DTOs', () => {
     expect(shieldOf({ type: 'normal', db: null, ranks: 2, bonus: 30 })).toEqual({ type: 'normal', db: 20, ranks: 2, bonus: 30 });
     expect(shieldOf({ type: 'full', ranks: 0, bonus: 0 })).toMatchObject({ db: 25 });
     expect(shieldOf({ type: 'wall', db: 35 })).toMatchObject({ db: 35 });
+  });
+
+  it('stores an attack with no table as null (spec 060)', () => {
+    const props = toNpcProps(
+      npcBody({
+        attacks: [
+          { ob: 60, size: 5, attackTable: null, notation: '60we' },
+          { ob: 40, size: 5, notation: '40rw' },
+        ],
+      }) as unknown as Partial<CreateNpcDto>,
+    );
+    expect(props.attacks).toEqual([
+      expect.objectContaining({ ob: 60, attackTable: null, notation: '60we' }),
+      expect.objectContaining({ ob: 40, attackTable: null, notation: '40rw' }),
+    ]);
+  });
+
+  it.each([
+    ['a table', { attackTable: 'bite' }, []],
+    ['no table', {}, []],
+    ['a null table', { attackTable: null }, []],
+    ['an empty table', { attackTable: '' }, ['attackTable']],
+    ['a table that is not a string', { attackTable: 3 }, ['attackTable']],
+  ])('validates an attack with %s', async (_, extra, invalid) => {
+    const dto = plainToInstance(NpcAttackDto, { ob: 10, size: 5, ...extra });
+    const errors = await validate(dto);
+    expect(errors.map(e => e.property)).toEqual(invalid);
   });
 
   it('leaves out the absent fields of a PATCH, clears the nullable ones and ignores null on the required ones', () => {
