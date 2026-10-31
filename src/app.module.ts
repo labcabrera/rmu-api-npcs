@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { envSchema } from './config/env.schema.js';
 
 import { AuthModule } from './modules/shared/infrastructure/security/auth.module.js';
+import { EncountersModule } from './modules/encounters/encounters.module.js';
 import { NpcsModule } from './modules/npcs/npcs.module.js';
 import { SharedModule } from './modules/shared/shared.module.js';
 
@@ -24,6 +25,7 @@ import { SharedModule } from './modules/shared/shared.module.js';
     AuthModule,
     SharedModule,
     NpcsModule,
+    EncountersModule,
   ],
 })
 export class AppModule {}

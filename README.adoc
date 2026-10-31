@@ -59,5 +59,12 @@ Permissions: public NPCs are the catalog (the generic creatures of the RMU Core 
 user and created, changed or deleted by `rmu-admin` only. Any `rmu-user` creates private NPCs, which only the owner or
 `rmu-admin` read, change or delete. Only `rmu-admin` makes an NPC public.
 
+Encounters (workspace spec 061): `GET /v1/encounter-tables` (summaries without rows), `GET /v1/encounter-tables/:id`
+(404 `encounter-table-not-found`), `GET /v1/encounter-settings` (Tables 15.4a-c, 404 `encounter-settings-not-found`
+before the import) and `POST /v1/encounters/resolve`, which is stateless: it takes every roll made so far and answers the
+check, the tables walked and the result or the roll still missing (400 `invalid-encounter-modifier` or
+`invalid-encounter-request`). Any authenticated user calls them. The collections `encounter-tables` and
+`encounter-settings` are read-only here: the data script of the workspace fills them.
+
 The book data is never part of this repository: it is imported into the local database from the gitignored `data/`
 folder of the workspace.
