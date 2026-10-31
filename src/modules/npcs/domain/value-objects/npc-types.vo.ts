@@ -112,6 +112,13 @@ export type CreatureSize = (typeof CREATURE_SIZES)[number];
 export const CRITICAL_IMMUNITIES = ['no-grapple', 'no-krush', 'no-puncture', 'no-slash', 'no-strike', 'no-unbalance'] as const;
 export type CriticalImmunity = (typeof CRITICAL_IMMUNITIES)[number];
 
+/** Shield types of Core Law Table 9-6, the letter of the stat block (`T`, `N`, `F`, `W`). */
+export const SHIELD_TYPES = ['target', 'normal', 'full', 'wall'] as const;
+export type ShieldType = (typeof SHIELD_TYPES)[number];
+
+/** DB each shield type adds (Table 9-6): the `db` of a shield the stat block gives only the type of. */
+export const SHIELD_TYPE_DB: Readonly<Record<ShieldType, number>> = { target: 15, normal: 20, full: 25, wall: 30 };
+
 /** Biome and location codes of Table T-3.1g. */
 export const BIOMES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'X', 'Z'] as const;
 /** A lower-case `w` after a code is a body of water within that biome (`Fw`). */

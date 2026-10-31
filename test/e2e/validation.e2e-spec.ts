@@ -38,6 +38,13 @@ describe('validation', () => {
     expect((await create(npcBody({ movement: [{ mode: 'teleport', baseRate: 10, maxPace: 'run' }] }))).status).toBe(400);
   });
 
+  it('validates the shield (ADR 0010)', async () => {
+    expect((await create(npcBody({ shield: { type: 'hide', ranks: 0, bonus: 0 } }))).status).toBe(400);
+    expect((await create(npcBody({ shield: { type: 'normal', db: -5 } }))).status).toBe(400);
+    expect((await create(npcBody({ shield: { type: 'normal', ranks: 1.5 } }))).status).toBe(400);
+    expect((await create(npcBody({ shield: { type: 'normal', bonus: '60' } }))).status).toBe(400);
+  });
+
   it('validates the nested attacks', async () => {
     expect((await create(npcBody({ attacks: [{ ob: 10, size: 14, attackTable: 'bite' }] }))).status).toBe(400);
     expect((await create(npcBody({ attacks: [{ ob: 10, size: 5 }] }))).status).toBe(400);

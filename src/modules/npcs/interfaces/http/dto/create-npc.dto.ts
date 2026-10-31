@@ -303,7 +303,7 @@ export function toNpcProps(dto: Partial<CreateNpcDto>): NpcUpdateProps {
   );
   set(
     'shield',
-    nullable(dto.shield, s => ({ type: s.type, ranks: s.ranks, bonus: s.bonus })),
+    nullable(dto.shield, s => NpcShieldDto.toEntity(s)),
   );
   set('initiative', required(dto.initiative, same));
   set(

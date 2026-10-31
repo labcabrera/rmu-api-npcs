@@ -42,6 +42,15 @@ describe('NPCs', () => {
     expect(event).toMatchObject({ topic: 'internal.rmu-npcs.npc.created.v1', message: { eventType: 'created' } });
   });
 
+  it('stores the shield with its DB, the one of its type when it is missing (ADR 0010)', async () => {
+    const given = await create('owner', { shield: { type: 'normal', db: 20, ranks: 8, bonus: 60 } });
+    expect(given.shield).toEqual({ type: 'normal', db: 20, ranks: 8, bonus: 60 });
+    const typeOnly = await create('owner', { shield: { type: 'full' } });
+    expect(typeOnly.shield).toEqual({ type: 'full', db: 25, ranks: null, bonus: null });
+    const read = await request(e2e.server).get(`/v1/npcs/${typeOnly.id}`).set('Authorization', e2e.auth('owner'));
+    expect((read.body as NpcBody).shield).toEqual({ type: 'full', db: 25, ranks: null, bonus: null });
+  });
+
   it('lists the public catalog and the own NPCs only', async () => {
     const own = await create('owner', { name: 'E2E own' });
     const others = await create('other', { name: 'E2E others' });

@@ -1,4 +1,4 @@
-import type { Biome, CriticalImmunity, MovementMode, Pace, Tier } from './npc-types.vo.js';
+import type { Biome, CriticalImmunity, MovementMode, Pace, ShieldType, Tier } from './npc-types.vo.js';
 
 /** One mode of movement: base movement rate (feet per round at walk pace) and maximum pace. */
 export interface NpcMovement {
@@ -28,10 +28,15 @@ export interface NpcRunning {
   bonus: number;
 }
 
+/**
+ * The `(N20+8/+60)` of the AT/DB column (ADR 0010): the shield type, the DB the shield adds (not in the DB of the
+ * block), and the Shield skill of the creature, its ranks and total bonus (null when the block gives only the type).
+ */
 export interface NpcShield {
-  type: string;
-  ranks: number;
-  bonus: number;
+  type: ShieldType;
+  db: number;
+  ranks: number | null;
+  bonus: number | null;
 }
 
 /** `[Poison, Nerve, -20]`; the book leaves out the type or the modifier of some poisons (`[Poison]`). */

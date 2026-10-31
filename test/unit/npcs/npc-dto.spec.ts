@@ -23,7 +23,7 @@ describe('NPC DTOs', () => {
       npcBody({
         criticalCodes: { reduceSeverity: true, noKnockdown: true, stunImmune: false, bleedImmune: true, immunities: ['no-slash'] },
         running: { ranks: 6, bonus: 44 },
-        shield: { type: 'normal', ranks: 1, bonus: 20 },
+        shield: { type: 'normal', db: 20, ranks: 8, bonus: 60 },
         attacks: [
           { ob: 10, size: 3, attackTable: 'stinger', poison: { type: 'nerve', rrModifier: -20 }, hand: 'left', sequence: 'double' },
         ],
@@ -38,7 +38,7 @@ describe('NPC DTOs', () => {
     expect(props).toMatchObject({
       criticalCodes: { reduceSeverity: true, immunities: ['no-slash'] },
       running: { ranks: 6, bonus: 44 },
-      shield: { type: 'normal', ranks: 1, bonus: 20 },
+      shield: { type: 'normal', db: 20, ranks: 8, bonus: 60 },
       attacks: [{ poison: { type: 'nerve', rrModifier: -20 }, hand: 'left', sequence: 'double', kata: null }],
       resistances: { fear: 5 },
       encounter: { group: 'Pack', dice: null, biomes: ['A', 'Fw'], frequency: null },
@@ -47,6 +47,14 @@ describe('NPC DTOs', () => {
       talents: [{ name: 'Natural Weapon', tier: null, params: null, dp: null }],
       items: [{ name: 'Torch', itemTypeId: null, amount: 2 }],
     });
+  });
+
+  it('takes the DB of a shield from its type when the stat block does not give it (Table 9-6, ADR 0010)', () => {
+    const shieldOf = (shield: Record<string, unknown>) => toNpcProps(npcBody({ shield }) as unknown as Partial<CreateNpcDto>).shield;
+    expect(shieldOf({ type: 'target' })).toEqual({ type: 'target', db: 15, ranks: null, bonus: null });
+    expect(shieldOf({ type: 'normal', db: null, ranks: 2, bonus: 30 })).toEqual({ type: 'normal', db: 20, ranks: 2, bonus: 30 });
+    expect(shieldOf({ type: 'full', ranks: 0, bonus: 0 })).toMatchObject({ db: 25 });
+    expect(shieldOf({ type: 'wall', db: 35 })).toMatchObject({ db: 35 });
   });
 
   it('leaves out the absent fields of a PATCH, clears the nullable ones and ignores null on the required ones', () => {
