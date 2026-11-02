@@ -37,6 +37,9 @@ describe('Npc', () => {
     ['a negative level', { level: -1 }, /Level/],
     ['no hits', { hp: 0 }, /Hits/],
     ['death hits below the hits', { hp: 80, deathHits: 40 }, /Death hits/],
+    ['a fright level above 30', { frightLevel: 31 }, /Fright level/],
+    ['a negative fright level', { frightLevel: -1 }, /Fright level/],
+    ['a fractional fright level', { frightLevel: 2.5 }, /Fright level/],
     ['an unknown size', { size: 'colossal' as never }, /Invalid size colossal/],
     ['an attack of size 14', { attacks: [attack({ size: 14 })] }, /Invalid size of attack 1/],
     ['an alternative of itself', { attacks: [attack({ alternativeTo: 0 })] }, /alternative of a previous attack/],
@@ -82,8 +85,24 @@ describe('Npc', () => {
     expect(() => npc.update({ hp: 200 })).toThrow(/Death hits/);
   });
 
+  it('keeps the fright level and clears it with null (spec 068)', () => {
+    const npc = Npc.create(creation({ frightLevel: 10 }));
+    expect(npc.getProps().frightLevel).toBe(10);
+    npc.update({ frightLevel: null });
+    expect(npc.frightLevel).toBeNull();
+    expect(Npc.create(creation({ frightLevel: 0 })).frightLevel).toBe(0);
+    expect(Npc.create(creation({ frightLevel: 30 })).frightLevel).toBe(30);
+  });
+
   it('gives the old documents the defaults of the new fields', () => {
-    const legacy = { ...npcProps(), accessType: undefined, size: undefined, movement: undefined, talents: undefined } as never;
-    expect(Npc.fromProps(legacy)).toMatchObject({ accessType: 'private', size: 'medium', movement: [], talents: [] });
+    const legacy = {
+      ...npcProps(),
+      accessType: undefined,
+      size: undefined,
+      movement: undefined,
+      talents: undefined,
+      frightLevel: undefined,
+    } as never;
+    expect(Npc.fromProps(legacy)).toMatchObject({ accessType: 'private', size: 'medium', movement: [], talents: [], frightLevel: null });
   });
 });

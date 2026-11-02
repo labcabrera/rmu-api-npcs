@@ -36,6 +36,8 @@ export interface NpcProps {
   level: number;
   levelSpread: LevelSpread | null;
   outlookType: NpcOutlookType | null;
+  /** Fright level of the creature (0-30): the base of a fear check it causes (spec 068, decision 17). */
+  frightLevel: number | null;
   archetype: NpcArchetype | null;
   movement: NpcMovement[];
   /** Endurance: rounds of exertion before fatigue checks. */

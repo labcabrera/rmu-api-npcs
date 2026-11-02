@@ -57,6 +57,8 @@ export class NpcDto {
   @ApiProperty() level: number;
   @ApiPropertyOptional({ enum: LEVEL_SPREADS, nullable: true }) levelSpread: LevelSpread | null;
   @ApiPropertyOptional({ enum: OUTLOOK_TYPES, nullable: true }) outlookType: NpcOutlookType | null;
+  @ApiPropertyOptional({ type: Number, nullable: true, minimum: 0, maximum: 30, description: 'Fright level (spec 068)' })
+  frightLevel: number | null;
   @ApiPropertyOptional({ enum: ARCHETYPES, nullable: true }) archetype: NpcArchetype | null;
   @ApiProperty({ type: [NpcMovementDto] }) movement: NpcMovement[];
   @ApiPropertyOptional({ type: Number, nullable: true }) endurance: number | null;

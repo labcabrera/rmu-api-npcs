@@ -60,6 +60,9 @@ export class NpcModel {
   @Prop({ type: String, required: false })
   outlookType: NpcOutlookType | null;
 
+  @Prop({ type: Number, required: false })
+  frightLevel: number | null;
+
   @Prop({ type: String, required: false })
   archetype: NpcArchetype | null;
 
