@@ -21,6 +21,10 @@ import { CREATURE_SIZES } from '../value-objects/npc-types.vo.js';
 import type { CreatureSize, LevelSpread, NpcArchetype, NpcCategory, NpcOutlookType } from '../value-objects/npc-types.vo.js';
 import type { NpcCreationProps, NpcItem, NpcProps, NpcUpdateProps } from './npc-props.js';
 
+/** Range of the fright level of a creature (spec 068, decision 17). */
+export const MIN_FRIGHT_LEVEL = 0;
+export const MAX_FRIGHT_LEVEL = 30;
+
 export class Npc extends BaseAggregateRoot<NpcProps> {
   public realmId: string;
   public accessType: AccessType;
@@ -31,6 +35,7 @@ export class Npc extends BaseAggregateRoot<NpcProps> {
   public level: number;
   public levelSpread: LevelSpread | null;
   public outlookType: NpcOutlookType | null;
+  public frightLevel: number | null;
   public archetype: NpcArchetype | null;
   public movement: NpcMovement[];
   public endurance: number | null;
@@ -71,6 +76,7 @@ export class Npc extends BaseAggregateRoot<NpcProps> {
     this.level = props.level;
     this.levelSpread = props.levelSpread;
     this.outlookType = props.outlookType;
+    this.frightLevel = props.frightLevel;
     this.archetype = props.archetype;
     this.movement = props.movement;
     this.endurance = props.endurance;
@@ -117,6 +123,7 @@ export class Npc extends BaseAggregateRoot<NpcProps> {
       group: props.group ?? null,
       levelSpread: props.levelSpread ?? null,
       outlookType: props.outlookType ?? null,
+      frightLevel: props.frightLevel ?? null,
       archetype: props.archetype ?? null,
       movement: props.movement ?? [],
       endurance: props.endurance ?? null,
@@ -158,6 +165,12 @@ export class Npc extends BaseAggregateRoot<NpcProps> {
   validate(): void {
     if (!this.name?.trim()) throw new ValidationError('Name is required');
     if (!Number.isInteger(this.level) || this.level < 0) throw new ValidationError('Level must be a positive integer');
+    if (
+      this.frightLevel !== null &&
+      (!Number.isInteger(this.frightLevel) || this.frightLevel < MIN_FRIGHT_LEVEL || this.frightLevel > MAX_FRIGHT_LEVEL)
+    ) {
+      throw new ValidationError(`Fright level must be an integer between ${MIN_FRIGHT_LEVEL} and ${MAX_FRIGHT_LEVEL}`);
+    }
     if (!(this.hp > 0)) throw new ValidationError('Hits must be greater than 0');
     if (this.deathHits !== null && this.deathHits < this.hp) throw new ValidationError('Death hits cannot be less than hits');
     if (!CREATURE_SIZES.includes(this.size)) throw new ValidationError(`Invalid size ${this.size}`);
@@ -188,6 +201,7 @@ export class Npc extends BaseAggregateRoot<NpcProps> {
       level: this.level,
       levelSpread: this.levelSpread,
       outlookType: this.outlookType,
+      frightLevel: this.frightLevel,
       archetype: this.archetype,
       movement: this.movement,
       endurance: this.endurance,

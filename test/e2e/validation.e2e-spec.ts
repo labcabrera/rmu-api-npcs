@@ -38,6 +38,15 @@ describe('validation', () => {
     expect((await create(npcBody({ movement: [{ mode: 'teleport', baseRate: 10, maxPace: 'run' }] }))).status).toBe(400);
   });
 
+  it('validates the fright level (spec 068)', async () => {
+    expect((await create(npcBody({ frightLevel: 31 }))).status).toBe(400);
+    expect((await create(npcBody({ frightLevel: -1 }))).status).toBe(400);
+    expect((await create(npcBody({ frightLevel: '10' }))).status).toBe(400);
+    const created = await create(npcBody({ frightLevel: 10 }));
+    expect(created.status).toBe(201);
+    expect(created.body).toMatchObject({ frightLevel: 10 });
+  });
+
   it('validates the shield (ADR 0010)', async () => {
     expect((await create(npcBody({ shield: { type: 'hide', ranks: 0, bonus: 0 } }))).status).toBe(400);
     expect((await create(npcBody({ shield: { type: 'normal', db: -5 } }))).status).toBe(400);

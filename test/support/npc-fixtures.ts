@@ -32,6 +32,7 @@ export const npcProps = (extra: Partial<NpcProps> = {}): NpcProps => ({
   level: 3,
   levelSpread: 'B',
   outlookType: 'aggressive',
+  frightLevel: null,
   archetype: 'offensive',
   movement: [],
   endurance: 40,

@@ -1,9 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max, Min, ValidateNested } from 'class-validator';
 import { CreateNpcCommand } from '../../../application/cqrs/commands/create-npc.command.js';
 import type { NpcCreationProps, NpcUpdateProps } from '../../../domain/aggregates/npc-props.js';
-import { Npc } from '../../../domain/aggregates/npc.aggregate.js';
+import { MAX_FRIGHT_LEVEL, MIN_FRIGHT_LEVEL, Npc } from '../../../domain/aggregates/npc.aggregate.js';
 import {
   ARCHETYPES,
   CREATURE_SIZES,
@@ -80,6 +80,20 @@ export class CreateNpcDto {
   @IsOptional()
   @IsIn(OUTLOOK_TYPES)
   outlookType: NpcOutlookType | null;
+
+  @ApiPropertyOptional({
+    type: Number,
+    nullable: true,
+    minimum: MIN_FRIGHT_LEVEL,
+    maximum: MAX_FRIGHT_LEVEL,
+    description: 'Fright level of the creature: the base of the fear check it causes (spec 068)',
+    example: 10,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(MIN_FRIGHT_LEVEL)
+  @Max(MAX_FRIGHT_LEVEL)
+  frightLevel: number | null;
 
   @ApiPropertyOptional({ enum: ARCHETYPES, nullable: true })
   @IsOptional()
@@ -228,6 +242,7 @@ export class CreateNpcDto {
       group: null,
       levelSpread: null,
       outlookType: null,
+      frightLevel: null,
       archetype: null,
       movement: [],
       endurance: null,
@@ -281,6 +296,7 @@ export function toNpcProps(dto: Partial<CreateNpcDto>): NpcUpdateProps {
   set('level', required(dto.level, same));
   set('levelSpread', nullable(dto.levelSpread, same));
   set('outlookType', nullable(dto.outlookType, same));
+  set('frightLevel', nullable(dto.frightLevel, same));
   set('archetype', nullable(dto.archetype, same));
   set(
     'movement',

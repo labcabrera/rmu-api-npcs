@@ -16,6 +16,7 @@ describe('NPC DTOs', () => {
       talents: [],
       items: [],
       source: null,
+      frightLevel: null,
       realmId: 'e2e-realm',
     });
     expect(command.props.attacks[1]).toMatchObject({ attackTable: 'bite', alternativeTo: 0, fumbleTable: null, poison: null });
@@ -85,6 +86,30 @@ describe('NPC DTOs', () => {
     const dto = plainToInstance(NpcAttackDto, { ob: 10, size: 5, ...extra });
     const errors = await validate(dto);
     expect(errors.map(e => e.property)).toEqual(invalid);
+  });
+
+  it.each([
+    ['an integer in range', 15, []],
+    ['zero', 0, []],
+    ['thirty', 30, []],
+    ['null', null, []],
+    ['above 30', 31, ['frightLevel']],
+    ['below 0', -1, ['frightLevel']],
+    ['a fraction', 2.5, ['frightLevel']],
+    ['a string', '10', ['frightLevel']],
+  ])('validates a fright level that is %s (spec 068)', async (_, frightLevel, invalid) => {
+    const dto = plainToInstance(UpdateNpcDto, { frightLevel });
+    const errors = await validate(dto);
+    expect(errors.map(e => e.property)).toEqual(invalid);
+  });
+
+  it('maps and clears the fright level in a PATCH (spec 068)', () => {
+    expect(UpdateNpcDto.toCommand('npc-1', Object.assign(new UpdateNpcDto(), { frightLevel: 12 }), 'u1', []).props).toEqual({
+      frightLevel: 12,
+    });
+    expect(UpdateNpcDto.toCommand('npc-1', Object.assign(new UpdateNpcDto(), { frightLevel: null }), 'u1', []).props).toEqual({
+      frightLevel: null,
+    });
   });
 
   it('leaves out the absent fields of a PATCH, clears the nullable ones and ignores null on the required ones', () => {
