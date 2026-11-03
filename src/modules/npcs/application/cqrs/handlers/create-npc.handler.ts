@@ -7,6 +7,7 @@ import { type NpcRepository, NPC_REPOSITORY } from '../../ports/npc-repository.p
 import { type NpcGuardPort, NPC_GUARD } from '../../ports/npc-guard.port.js';
 import { type RealmPort, REALM_PORT } from '../../ports/realm.port.js';
 import { ValidationError } from '../../../../shared/domain/errors/errors.js';
+import { RMU_ADMIN } from '../../../../shared/domain/entities/user-roles.js';
 
 @CommandHandler(CreateNpcCommand)
 export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> {
@@ -24,6 +25,11 @@ export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> 
     const npc = Npc.create({ ...command.props, owner: command.userId });
     const realm = await this.realmPort.fetchRealmById(command.props.realmId);
     if (!realm) throw new ValidationError(`Realm ${command.props.realmId} does not exist`);
+    // Spec 071, decision 1: the user must read the realm (an admin reads them all).
+    if (!command.roles.includes(RMU_ADMIN)) {
+      const level = await this.realmPort.fetchUserAccess(command.props.realmId, command.userId);
+      if (!level || level === 'none') throw new ValidationError('You cannot read the realm of the NPC', 'realm-not-readable');
+    }
     const saved = await this.npcRepository.save(npc);
     await this.eventPublisher.publishChanges('npc', npc);
     return saved;
