@@ -2,7 +2,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
 import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto.js';
 import type { NpcItem } from '../../../domain/aggregates/npc-props.js';
-import { Npc } from '../../../domain/aggregates/npc.aggregate.js';
+import type { NpcView } from '../../../application/cqrs/npc-view.js';
+import type { NpcAccess } from '../../../domain/services/npc-access.js';
 import type {
   NpcAttack,
   NpcCriticalCodes,
@@ -84,12 +85,17 @@ export class NpcDto {
   @ApiPropertyOptional({ type: NpcSourceDto, nullable: true }) source: NpcSource | null;
   @ApiPropertyOptional({ type: String, nullable: true }) description: string | null;
   @ApiPropertyOptional({ type: String, nullable: true }) imageUrl: string | null;
-  @ApiProperty() owner: string;
+  @ApiProperty({ description: 'Who created it: it gives no permission, the realm decides (spec 073)' }) owner: string;
   @ApiProperty() createdAt: Date;
   @ApiPropertyOptional({ type: Date, nullable: true }) updatedAt: Date | null;
+  @ApiProperty({
+    enum: ['read', 'write', 'manage'],
+    description: 'What the caller can do with it, from its level on the realm (spec 073): write changes and deletes it',
+  })
+  access: NpcAccess;
 
-  static fromEntity(entity: Npc): NpcDto {
-    return Object.assign(new NpcDto(), entity.getProps(), { version: entity.version });
+  static fromView({ npc, access }: NpcView): NpcDto {
+    return Object.assign(new NpcDto(), npc.getProps(), { version: npc.version, access });
   }
 }
 

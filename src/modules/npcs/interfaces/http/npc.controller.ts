@@ -12,7 +12,7 @@ import { DeleteNpcCommand } from '../../application/cqrs/commands/delete-npc.com
 import { UpdateNpcCommand } from '../../application/cqrs/commands/update-npc.command.js';
 import { GetNpcQuery } from '../../application/cqrs/queries/get-npc.query.js';
 import { GetNpcsQuery } from '../../application/cqrs/queries/get-npcs.query.js';
-import { Npc } from '../../domain/aggregates/npc.aggregate.js';
+import type { NpcView } from '../../application/cqrs/npc-view.js';
 import { CreateNpcDto } from './dto/create-npc.dto.js';
 import { NpcDto, NpcPageDto } from './dto/npc.dto.js';
 import { UpdateNpcDto } from './dto/update-npc.dto.js';
@@ -29,20 +29,29 @@ export class NpcController {
   @Get(':id')
   @ApiOperation({ operationId: 'findNpcById', summary: 'Find NPC by id' })
   @ApiOkResponse({ type: NpcDto })
-  @ApiErrors({ 404: 'NPC not found', 403: 'A private NPC of another user' })
+  @ApiErrors({
+    404: 'NPC not found',
+    403: 'The caller does not read the realm of the NPC',
+    502: 'Core did not answer the realm access',
+    504: 'Core did not answer the realm access in time',
+  })
   async findById(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
-    const npc = await this.queryBus.execute<GetNpcQuery, Npc>(new GetNpcQuery(id, user.id, user.roles));
-    return NpcDto.fromEntity(npc);
+    const view = await this.queryBus.execute<GetNpcQuery, NpcView>(new GetNpcQuery(id, user.id, user.roles));
+    return NpcDto.fromView(view);
   }
 
   @Get('')
-  @ApiOperation({ operationId: 'findNpcs', summary: 'Find NPCs by RSQL: the public catalog and your own' })
+  @ApiOperation({ operationId: 'findNpcs', summary: 'Find NPCs by RSQL: those of the realms you read (all for an admin)' })
   @ApiOkResponse({ type: NpcPageDto })
-  @ApiErrors({ 400: 'Invalid RSQL query' })
+  @ApiErrors({
+    400: 'Invalid RSQL query',
+    502: 'Core did not answer the realm access',
+    504: 'Core did not answer the realm access in time',
+  })
   // Up to 1000: the catalog of generic creatures is loaded whole.
   async find(@Query() dto: CatalogPagedQueryDto, @CurrentUser() user: AuthenticatedUser) {
-    const page = await this.queryBus.execute<GetNpcsQuery, Page<Npc>>(new GetNpcsQuery(dto.q, dto.page, dto.size, user.id, user.roles));
-    const mapped = page.content.map(npc => NpcDto.fromEntity(npc));
+    const page = await this.queryBus.execute<GetNpcsQuery, Page<NpcView>>(new GetNpcsQuery(dto.q, dto.page, dto.size, user.id, user.roles));
+    const mapped = page.content.map(view => NpcDto.fromView(view));
     return new Page<NpcDto>(mapped, page.pagination.page, page.pagination.size, page.pagination.totalElements);
   }
 
@@ -50,14 +59,14 @@ export class NpcController {
   @ApiOperation({ operationId: 'createNpc', summary: 'Create an NPC' })
   @ApiCreatedResponse({ type: NpcDto, description: 'Created' })
   @ApiErrors({
-    400: 'Bad request, invalid data or unknown realm',
-    403: 'Without rmu-user or rmu-admin, or a public NPC without rmu-admin',
+    400: 'Bad request, invalid data, unknown realm or a realm the caller does not read (`realm-not-readable`)',
+    403: 'Without rmu-user or rmu-admin, a public NPC without rmu-admin, or a realm read only (`realm-not-writable`)',
     502: 'Core did not answer the realm check',
     504: 'Core did not answer the realm check in time',
   })
   async create(@Body() dto: CreateNpcDto, @CurrentUser() user: AuthenticatedUser) {
-    const npc = await this.commandBus.execute<CreateNpcCommand, Npc>(CreateNpcDto.toCommand(dto, user.id, user.roles));
-    return NpcDto.fromEntity(npc);
+    const view = await this.commandBus.execute<CreateNpcCommand, NpcView>(CreateNpcDto.toCommand(dto, user.id, user.roles));
+    return NpcDto.fromView(view);
   }
 
   @Patch(':id')
@@ -66,19 +75,26 @@ export class NpcController {
   @ApiErrors({
     404: 'NPC not found',
     400: 'Bad request, invalid data',
-    403: 'Not the owner or an admin, or a public NPC without rmu-admin',
+    403: 'Without write on the realm of the NPC, or a public NPC without rmu-admin',
     409: 'The NPC changed since the version sent',
+    502: 'Core did not answer the realm access',
+    504: 'Core did not answer the realm access in time',
   })
   async update(@Param('id') id: string, @Body() dto: UpdateNpcDto, @CurrentUser() user: AuthenticatedUser) {
-    const npc = await this.commandBus.execute<UpdateNpcCommand, Npc>(UpdateNpcDto.toCommand(id, dto, user.id, user.roles));
-    return NpcDto.fromEntity(npc);
+    const view = await this.commandBus.execute<UpdateNpcCommand, NpcView>(UpdateNpcDto.toCommand(id, dto, user.id, user.roles));
+    return NpcDto.fromView(view);
   }
 
   @Delete(':id')
   @HttpCode(204)
   @ApiOperation({ operationId: 'deleteNpc', summary: 'Delete an NPC' })
   @ApiNoContentResponse({ description: 'Deleted' })
-  @ApiErrors({ 404: 'NPC not found', 403: 'Not the owner or an admin, or a public NPC without rmu-admin' })
+  @ApiErrors({
+    404: 'NPC not found',
+    403: 'Without write on the realm of the NPC, or a public NPC without rmu-admin',
+    502: 'Core did not answer the realm access',
+    504: 'Core did not answer the realm access in time',
+  })
   async delete(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     await this.commandBus.execute(new DeleteNpcCommand(id, user.id, user.roles));
   }

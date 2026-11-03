@@ -85,8 +85,9 @@ describe('validation', () => {
     expect(e2e.realmLookups).toContain('missing-realm');
   });
 
-  it('needs the user to read the realm, unless an admin (spec 071)', async () => {
+  it('needs the user to read the realm, unless an admin (specs 071 and 073)', async () => {
     REALM_ACCESS.set('e2e-realm:e2e-owner', 'none');
+    e2e.clearAccessCache();
     try {
       const response = await create(npcBody());
       expect(response.status).toBe(400);
@@ -94,7 +95,7 @@ describe('validation', () => {
       const admin = await request(e2e.server).post('/v1/npcs').set('Authorization', e2e.auth('admin')).send(npcBody());
       expect(admin.status).toBe(201);
     } finally {
-      REALM_ACCESS.clear();
+      e2e.resetRealmAccess();
     }
   });
 

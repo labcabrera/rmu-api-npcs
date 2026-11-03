@@ -33,7 +33,8 @@ export class NpcModel {
   @Prop({ type: Number, default: 0 })
   version: number;
 
-  @Prop({ type: String, required: true })
+  /** Indexed: the lists filter by the realms the user reads and a deleted realm takes its NPCs (spec 073). */
+  @Prop({ type: String, required: true, index: true })
   realmId: string;
 
   @Prop({ type: String, required: false })

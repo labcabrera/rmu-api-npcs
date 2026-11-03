@@ -24,8 +24,9 @@ export interface NpcItem {
 /** An NPC or creature: the Combat Stat Block of Creature Law (spec 054) plus ownership and presentation. */
 export interface NpcProps {
   id: string;
+  /** The realm decides who reads and writes the NPC (spec 073). */
   realmId: string;
-  /** Public NPCs are the catalog (admin only); the rest are private to their owner (spec 054). */
+  /** Public NPCs are the book catalog: only admins write them (spec 054); visibility is the realm's (spec 073). */
   accessType: AccessType;
   name: string;
   category: NpcCategory;
@@ -66,6 +67,7 @@ export interface NpcProps {
   source: NpcSource | null;
   description: string | null;
   imageUrl: string | null;
+  /** Who created it: it gives no permission (spec 073). */
   owner: string;
   createdAt: Date;
   updatedAt: Date | null;

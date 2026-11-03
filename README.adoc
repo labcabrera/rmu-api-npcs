@@ -55,9 +55,18 @@ replaces the lists it sends (attacks, skills, movement…) whole; there are no s
 409 `version-conflict`. A `PATCH` without changes neither writes nor publishes. Events go to
 `internal.rmu-npcs.npc.<created|updated|deleted>.v1`.
 
-Permissions: public NPCs are the catalog (the generic creatures of the RMU Core realm), readable by every authenticated
-user and created, changed or deleted by `rmu-admin` only. Any `rmu-user` creates private NPCs, which only the owner or
-`rmu-admin` read, change or delete. Only `rmu-admin` makes an NPC public.
+Permissions (workspace spec 073): every NPC is a child of its realm and takes the level the caller has on it in core
+(owner, shares, players of its games). `rmu-admin` manages every NPC. Otherwise `read` on the realm reads and lists its
+NPCs, and `write` (or owning the realm) creates, changes and deletes them; the `owner` of the NPC is only who created
+it. Public NPCs are the book catalog (the generic creatures of the RMU Core realm): read with the realm, created,
+changed or deleted by `rmu-admin` only, and only `rmu-admin` makes an NPC public. Lists have the NPCs of the realms the
+caller reads, and every response carries `access` (`read`, `write` or `manage`). Creating in a realm without read is a
+400 `realm-not-readable`, with read only a 403 `realm-not-writable`.
+
+The levels come from `GET /v1/realms/access?userId=` of core (service token), asked once per user and kept 30 seconds
+in memory: removing a share takes up to that long to show here. Admins never ask. If core fails, the request fails
+(502/504). The Kafka consumer (`RMU_KAFKA_CONSUMER_GROUP_ID`) reads `internal.rmu-core.realm.deleted.v1` and deletes
+the NPCs of the realm, publishing an `npc.deleted` each; a repeated message does nothing.
 
 Encounters (workspace spec 061): `GET /v1/encounter-tables` (summaries without rows), `GET /v1/encounter-tables/:id`
 (404 `encounter-table-not-found`), `GET /v1/encounter-settings` (Tables 15.4a-c, 404 `encounter-settings-not-found`

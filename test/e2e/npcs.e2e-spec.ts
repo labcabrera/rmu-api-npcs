@@ -7,7 +7,7 @@ type NpcBody = Record<string, unknown> & { id: string; version: number };
 describe('NPCs', () => {
   let e2e: E2eApp;
 
-  const create = async (user: 'owner' | 'other' | 'admin', extra: Record<string, unknown> = {}) => {
+  const create = async (user: 'owner' | 'admin', extra: Record<string, unknown> = {}) => {
     const response = await request(e2e.server).post('/v1/npcs').set('Authorization', e2e.auth(user)).send(npcBody(extra));
     expect(response.status).toBe(201);
     return response.body as NpcBody;
@@ -51,13 +51,13 @@ describe('NPCs', () => {
     expect((read.body as NpcBody).shield).toEqual({ type: 'full', db: 25, ranks: null, bonus: null });
   });
 
-  it('lists the public catalog and the own NPCs only', async () => {
+  it('lists the NPCs of the realms the user reads, combined with the RSQL query (spec 073)', async () => {
     const own = await create('owner', { name: 'E2E own' });
-    const others = await create('other', { name: 'E2E others' });
     const catalog = await create('admin', { name: 'E2E catalog', accessType: 'public' });
     const list = await request(e2e.server).get('/v1/npcs?size=1000').set('Authorization', e2e.auth('owner'));
     expect(ids(list.body)).toEqual(expect.arrayContaining([own.id, catalog.id]));
-    expect(ids(list.body)).not.toContain(others.id);
+    const stranger = await request(e2e.server).get('/v1/npcs?size=1000').set('Authorization', e2e.auth('other'));
+    expect(ids(stranger.body)).not.toContain(own.id);
     const filtered = await request(e2e.server).get('/v1/npcs?q=accessType==public').set('Authorization', e2e.auth('owner'));
     expect(ids(filtered.body)).toContain(catalog.id);
     expect(ids(filtered.body)).not.toContain(own.id);
