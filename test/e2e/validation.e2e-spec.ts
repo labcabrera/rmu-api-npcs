@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { npcBody } from '../support/npc-fixtures.js';
-import { startApp, type E2eApp } from './support/app.js';
+import { REALM_ACCESS, startApp, type E2eApp } from './support/app.js';
 
 // Spec 044, fallo 10: the body is validated as sent (no implicit conversion); the query converts page and size itself.
 describe('validation', () => {
@@ -83,6 +83,19 @@ describe('validation', () => {
     const response = await create(npcBody({ realmId: 'missing-realm' }));
     expect(response.status).toBe(400);
     expect(e2e.realmLookups).toContain('missing-realm');
+  });
+
+  it('needs the user to read the realm, unless an admin (spec 071)', async () => {
+    REALM_ACCESS.set('e2e-realm:e2e-owner', 'none');
+    try {
+      const response = await create(npcBody());
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({ code: 'realm-not-readable' });
+      const admin = await request(e2e.server).post('/v1/npcs').set('Authorization', e2e.auth('admin')).send(npcBody());
+      expect(admin.status).toBe(201);
+    } finally {
+      REALM_ACCESS.clear();
+    }
   });
 
   it('still converts page and size from the query', async () => {
