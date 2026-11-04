@@ -18,7 +18,7 @@ export class DeleteNpcHandler implements ICommandHandler<DeleteNpcCommand> {
   async execute(command: DeleteNpcCommand): Promise<void> {
     const npc = await this.npcRepository.findById(command.id);
     if (!npc) throw new NotFoundError('Npc', command.id);
-    this.npcGuard.checkDelete(npc, command.userId, command.roles);
+    await this.npcGuard.checkDelete(npc, command.userId, command.roles);
     this.npcGuard.checkAccessType(npc.accessType, command.roles);
     await this.npcRepository.deleteById(command.id);
     await this.eventPublisher.publish('npc', new NpcDeletedEvent(npc.getProps()));

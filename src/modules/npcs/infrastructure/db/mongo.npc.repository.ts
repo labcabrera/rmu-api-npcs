@@ -14,6 +14,11 @@ export class MongoNpcRepository extends MongoBaseRepository<Npc, NpcModel> imple
     super(npcModel, rsqlParser);
   }
 
+  async findByRealm(realmId: string): Promise<Npc[]> {
+    const docs = await this.model.find({ realmId }).sort({ _id: 1 });
+    return docs.map(doc => this.toEntity(doc));
+  }
+
   protected mapToEntity(doc: NpcDocument): Npc {
     // A plain copy: the mixed blocks of the stat block must not keep Mongoose references.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

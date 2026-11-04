@@ -2,15 +2,19 @@ import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import { Npc } from '../../../domain/aggregates/npc.aggregate.js';
 import { CreateNpcCommand } from '../commands/create-npc.command.js';
+import type { NpcView } from '../npc-view.js';
 import { type DomainEventPublisher, DOMAIN_EVENT_PUBLISHER } from '../../../../shared/application/ports/domain-event-publisher.port.js';
 import { type NpcRepository, NPC_REPOSITORY } from '../../ports/npc-repository.port.js';
 import { type NpcGuardPort, NPC_GUARD } from '../../ports/npc-guard.port.js';
 import { type RealmPort, REALM_PORT } from '../../ports/realm.port.js';
-import { ValidationError } from '../../../../shared/domain/errors/errors.js';
+import { ForbiddenError, ValidationError } from '../../../../shared/domain/errors/errors.js';
 import { RMU_ADMIN } from '../../../../shared/domain/entities/user-roles.js';
 
+/** The code of the 403 of a user who creates an NPC without realm (spec 073): global NPCs are admin only. */
+export const GLOBAL_ENTITY_ADMIN_ONLY = 'global-entity-admin-only';
+
 @CommandHandler(CreateNpcCommand)
-export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> {
+export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, NpcView> {
   constructor(
     @Inject(NPC_REPOSITORY) private readonly npcRepository: NpcRepository,
     @Inject(NPC_GUARD) private readonly npcGuard: NpcGuardPort,
@@ -18,20 +22,26 @@ export class CreateNpcHandler implements ICommandHandler<CreateNpcCommand, Npc> 
     @Inject(DOMAIN_EVENT_PUBLISHER) private readonly eventPublisher: DomainEventPublisher,
   ) {}
 
-  async execute(command: CreateNpcCommand): Promise<Npc> {
+  async execute(command: CreateNpcCommand): Promise<NpcView> {
     this.npcGuard.checkCreate(command.roles);
     this.npcGuard.checkAccessType(command.props.accessType, command.roles);
     // Before asking core for the realm, so invalid data is a 400 without a call.
     const npc = Npc.create({ ...command.props, owner: command.userId });
-    const realm = await this.realmPort.fetchRealmById(command.props.realmId);
-    if (!realm) throw new ValidationError(`Realm ${command.props.realmId} does not exist`);
-    // Spec 071, decision 1: the user must read the realm (an admin reads them all).
-    if (!command.roles.includes(RMU_ADMIN)) {
-      const level = await this.realmPort.fetchUserAccess(command.props.realmId, command.userId);
-      if (!level || level === 'none') throw new ValidationError('You cannot read the realm of the NPC', 'realm-not-readable');
+    const { realmId } = command.props;
+    if (!realmId) {
+      // Spec 073: an NPC without realm is global, read by every user, so only an admin creates it (no call to core).
+      if (!command.roles.includes(RMU_ADMIN)) {
+        throw new ForbiddenError('Only an admin can create an NPC without realm', GLOBAL_ENTITY_ADMIN_ONLY);
+      }
+    } else {
+      const realm = await this.realmPort.fetchRealmById(realmId);
+      if (!realm) throw new ValidationError(`Realm ${realmId} does not exist`);
+      // Spec 073, decision 4: the user must write in the realm (an admin writes in them all).
+      await this.npcGuard.checkCreateInRealm(realmId, command.userId, command.roles);
     }
     const saved = await this.npcRepository.save(npc);
     await this.eventPublisher.publishChanges('npc', npc);
-    return saved;
+    // Only an admin creates a public or global NPC, so a user who writes in the realm gets `write`.
+    return { npc: saved, access: await this.npcGuard.checkRead(saved, command.userId, command.roles) };
   }
 }

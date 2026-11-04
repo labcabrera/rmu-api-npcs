@@ -26,7 +26,7 @@ export const MIN_FRIGHT_LEVEL = 0;
 export const MAX_FRIGHT_LEVEL = 30;
 
 export class Npc extends BaseAggregateRoot<NpcProps> {
-  public realmId: string;
+  public realmId: string | null;
   public accessType: AccessType;
   public name: string;
   public category: NpcCategory;
@@ -67,7 +67,7 @@ export class Npc extends BaseAggregateRoot<NpcProps> {
 
   private constructor(props: NpcProps) {
     super(props.id);
-    this.realmId = props.realmId;
+    this.realmId = props.realmId ?? null;
     this.accessType = props.accessType;
     this.name = props.name;
     this.category = props.category;
