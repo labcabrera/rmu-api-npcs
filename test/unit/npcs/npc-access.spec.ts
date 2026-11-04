@@ -1,4 +1,10 @@
-import { atLeast, type NpcAccessLevel, resolveNpcAccess } from '../../../src/modules/npcs/domain/services/npc-access.js';
+import {
+  atLeast,
+  type NpcAccessLevel,
+  resolveGlobalNpcAccess,
+  resolveNpcAccess,
+  resolveNpcAccessFor,
+} from '../../../src/modules/npcs/domain/services/npc-access.js';
 import type { AccessType } from '../../../src/modules/shared/domain/entities/access-type.js';
 
 const ADMIN = ['rmu-admin'];
@@ -35,6 +41,36 @@ describe('resolveNpcAccess', () => {
   it('ignores the owner of the NPC', () => {
     const npc = { accessType: 'private' as const, owner: 'u1' };
     expect(resolveNpcAccess(npc, 'none', USER)).toBe('none');
+  });
+});
+
+// Spec 073 extension: an NPC without realm is global, read by everyone and managed only by admins.
+describe('resolveNpcAccessFor', () => {
+  const levels = new Map<string, NpcAccessLevel>([
+    ['r-read', 'read'],
+    ['r-manage', 'manage'],
+  ]);
+  const table: [string, string | null | undefined, readonly string[], AccessType | undefined, NpcAccessLevel][] = [
+    ['global NPC, admin', null, ADMIN, 'private', 'manage'],
+    ['global catalog NPC, admin', null, ADMIN, 'public', 'manage'],
+    ['global NPC, user', null, USER, 'private', 'read'],
+    ['global catalog NPC, user', null, USER, 'public', 'read'],
+    ['global NPC without the field, user', undefined, USER, 'private', 'read'],
+    ['global NPC, no roles', null, [], 'private', 'read'],
+    ['realm NPC, realm read', 'r-read', USER, 'private', 'read'],
+    ['realm NPC, realm manage', 'r-manage', USER, 'private', 'write'],
+    ['realm NPC, realm none', 'r-none', USER, 'private', 'none'],
+    ['realm NPC, admin', 'r-none', ADMIN, 'private', 'manage'],
+  ];
+
+  it.each(table)('%s', (_name, realmId, roles, accessType, expected) => {
+    expect(resolveNpcAccessFor({ realmId, accessType }, levels, roles)).toBe(expected);
+  });
+
+  it('ignores the owner of a global NPC', () => {
+    expect(resolveNpcAccessFor({ realmId: null, accessType: 'private', owner: 'u1' } as never, levels, USER)).toBe('read');
+    expect(resolveGlobalNpcAccess(USER)).toBe('read');
+    expect(resolveGlobalNpcAccess(ADMIN)).toBe('manage');
   });
 });
 

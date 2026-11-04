@@ -30,3 +30,21 @@ export function resolveNpcAccess(
   if (npc.accessType === 'public') return 'read';
   return realmLevel === 'manage' ? 'write' : realmLevel;
 }
+
+/**
+ * The access to a global NPC (`realmId: null`, spec 073, decision 1 of the extension): every user reads it and only
+ * an admin manages it. The owner and `accessType` give nothing.
+ */
+export function resolveGlobalNpcAccess(roles: readonly string[]): NpcAccess {
+  return roles.includes(RMU_ADMIN) ? 'manage' : 'read';
+}
+
+/** The access to an NPC: of its realm when it has one (`realmLevels` holds the realms the user reads), global otherwise. */
+export function resolveNpcAccessFor(
+  npc: { realmId?: string | null; accessType?: AccessType | null },
+  realmLevels: ReadonlyMap<string, NpcAccessLevel>,
+  roles: readonly string[],
+): NpcAccessLevel {
+  if (!npc.realmId) return resolveGlobalNpcAccess(roles);
+  return resolveNpcAccess(npc, realmLevels.get(npc.realmId) ?? 'none', roles);
+}

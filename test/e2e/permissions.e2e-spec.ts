@@ -191,6 +191,57 @@ describe('the list', () => {
   });
 });
 
+// Spec 073 extension: an NPC without realm is global, read by every user and managed only by admins.
+describe('a global NPC', () => {
+  it('is created only by an admin, without asking core', async () => {
+    for (const realmId of [undefined, null]) {
+      const byUser = await request(e2e.server).post('/v1/npcs').set('Authorization', e2e.auth('owner')).send(npcBody({ realmId }));
+      expect(byUser.status).toBe(403);
+      expect(byUser.body).toMatchObject({ code: 'global-entity-admin-only' });
+    }
+    e2e.realmLookups.length = 0;
+    const byAdmin = await request(e2e.server)
+      .post('/v1/npcs')
+      .set('Authorization', e2e.auth('admin'))
+      .send(npcBody({ realmId: null }));
+    expect(byAdmin.status).toBe(201);
+    expect(byAdmin.body).toMatchObject({ realmId: null, access: 'manage' });
+    expect(e2e.realmLookups).toEqual([]);
+  });
+
+  it('is read and listed by every user with read, and changed and deleted only by an admin', async () => {
+    const created = await request(e2e.server)
+      .post('/v1/npcs')
+      .set('Authorization', e2e.auth('admin'))
+      .send(npcBody({ realmId: null }));
+    const id = (created.body as { id: string }).id;
+    for (const caller of ['owner', 'other'] as const) {
+      const read = await request(e2e.server).get(`/v1/npcs/${id}`).set('Authorization', e2e.auth(caller));
+      expect(read.status).toBe(200);
+      expect(read.body).toMatchObject({ realmId: null, access: 'read' });
+      const list = await request(e2e.server).get('/v1/npcs?size=1000').set('Authorization', e2e.auth(caller));
+      const rows = (list.body as { content: { id: string; access: string }[] }).content;
+      expect(rows.find(row => row.id === id)?.access).toBe('read');
+      const patch = await request(e2e.server).patch(`/v1/npcs/${id}`).set('Authorization', e2e.auth(caller)).send({ level: 2 });
+      expect(patch.status).toBe(403);
+      expect(patch.body).toMatchObject({ code: 'forbidden' });
+      expect((await request(e2e.server).delete(`/v1/npcs/${id}`).set('Authorization', e2e.auth(caller))).status).toBe(403);
+    }
+    const patch = await request(e2e.server).patch(`/v1/npcs/${id}`).set('Authorization', e2e.auth('admin')).send({ level: 2 });
+    expect(patch.status).toBe(200);
+    expect(patch.body).toMatchObject({ realmId: null, level: 2, access: 'manage' });
+    expect((await request(e2e.server).delete(`/v1/npcs/${id}`).set('Authorization', e2e.auth('admin'))).status).toBe(204);
+  });
+
+  it('rejects a realmId that is not an id', async () => {
+    const response = await request(e2e.server)
+      .post('/v1/npcs')
+      .set('Authorization', e2e.auth('admin'))
+      .send(npcBody({ realmId: 'a/b' }));
+    expect(response.status).toBe(400);
+  });
+});
+
 describe('losing the realm', () => {
   afterEach(() => {
     CORE_DOWN.value = false;

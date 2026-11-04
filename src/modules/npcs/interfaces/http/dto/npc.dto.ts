@@ -49,7 +49,8 @@ import {
 export class NpcDto {
   @ApiProperty({ example: '6a1f0e8e-…' }) id: string;
   @ApiProperty({ description: 'Version of optimistic concurrency: send it back in the PATCH', example: 0 }) version: number;
-  @ApiProperty() realmId: string;
+  @ApiProperty({ type: String, nullable: true, description: 'Null for a global NPC: everyone reads it, only admins manage it' })
+  realmId: string | null;
   @ApiProperty({ enum: ['public', 'private'] }) accessType: AccessType;
   @ApiProperty() name: string;
   @ApiProperty({ enum: NPC_CATEGORIES }) category: NpcCategory;

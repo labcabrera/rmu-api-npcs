@@ -28,6 +28,6 @@ export interface NpcGuardPort {
   /** The level of the user on any NPC, resolved with one question to core for the whole list. */
   accessResolver(userId: string, roles: string[]): Promise<(npc: Npc) => NpcAccessLevel>;
 
-  /** The filter of the lists: every NPC for an admin, those of the realms the user reads for the rest. */
+  /** The filter of the lists: every NPC for an admin; the global ones and those of the realms the user reads for the rest. */
   buildQueryPredicate(userId: string, roles: string[]): Promise<QueryCriteria>;
 }

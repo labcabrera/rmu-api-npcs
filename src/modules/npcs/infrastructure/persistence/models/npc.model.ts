@@ -33,9 +33,12 @@ export class NpcModel {
   @Prop({ type: Number, default: 0 })
   version: number;
 
-  /** Indexed: the lists filter by the realms the user reads and a deleted realm takes its NPCs (spec 073). */
-  @Prop({ type: String, required: true, index: true })
-  realmId: string;
+  /**
+   * Indexed: the lists filter by the realms the user reads and a deleted realm takes its NPCs (spec 073). Null is a
+   * global NPC.
+   */
+  @Prop({ type: String, required: false, default: null, index: true })
+  realmId: string | null;
 
   @Prop({ type: String, required: false })
   accessType: AccessType;

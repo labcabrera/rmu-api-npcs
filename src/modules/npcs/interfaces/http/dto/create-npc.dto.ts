@@ -1,6 +1,19 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max, Min, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
+  Max,
+  Min,
+  ValidateIf,
+  ValidateNested,
+} from 'class-validator';
 import { CreateNpcCommand } from '../../../application/cqrs/commands/create-npc.command.js';
 import type { NpcCreationProps, NpcUpdateProps } from '../../../domain/aggregates/npc-props.js';
 import { MAX_FRIGHT_LEVEL, MIN_FRIGHT_LEVEL, Npc } from '../../../domain/aggregates/npc.aggregate.js';
@@ -36,11 +49,17 @@ import {
 export const REALM_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 
 export class CreateNpcDto {
-  @ApiProperty({ description: 'Realm identifier from core module', example: 'ad49b7af-7a26-44f9-b004-11afe0fba79a' })
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description: 'Realm identifier from core module; absent or null creates a global NPC (admin only)',
+    example: 'ad49b7af-7a26-44f9-b004-11afe0fba79a',
+  })
+  @ValidateIf((dto: CreateNpcDto) => dto.realmId != null)
   @IsString()
   // An id of core: it goes in the URL of the realm check, so no slashes or dots.
   @Matches(REALM_ID_PATTERN, { message: 'realmId must be an id: letters, digits, - and _' })
-  realmId: string;
+  realmId: string | null | undefined;
 
   @ApiPropertyOptional({ enum: ['public', 'private'], description: 'Public NPCs are the catalog (admin only)', default: 'private' })
   @IsOptional()
@@ -266,7 +285,7 @@ export class CreateNpcDto {
     const props: Omit<NpcCreationProps, 'owner'> = {
       ...defaults,
       ...(toNpcProps(dto) as Omit<NpcCreationProps, 'owner' | 'source' | 'realmId'>),
-      realmId: dto.realmId,
+      realmId: dto.realmId ?? null,
       source: null,
     };
     return new CreateNpcCommand(props, userId, roles);

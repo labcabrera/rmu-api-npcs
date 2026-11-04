@@ -6,11 +6,18 @@ import { ForbiddenError, ValidationError } from '../../../shared/domain/errors/e
 import type { NpcGuardPort } from '../../application/ports/npc-guard.port.js';
 import { RealmAccessService } from '../../application/services/realm-access.service.js';
 import { Npc } from '../../domain/aggregates/npc.aggregate.js';
-import { atLeast, type NpcAccess, type NpcAccessLevel, resolveNpcAccess } from '../../domain/services/npc-access.js';
+import {
+  atLeast,
+  type NpcAccess,
+  type NpcAccessLevel,
+  resolveGlobalNpcAccess,
+  resolveNpcAccessFor,
+} from '../../domain/services/npc-access.js';
 
 /**
  * Permissions of NPCs (spec 073): the level on the realm decides, through resolveNpcAccess. `read` reads and lists,
  * `write` creates in the realm, changes and deletes; public NPCs (the catalog) stay read-only for everyone but admins.
+ * A global NPC (`realmId: null`) is read by everyone and managed only by admins, without asking core.
  */
 @Injectable()
 export class NpcGuardAdapter implements NpcGuardPort {
@@ -48,16 +55,21 @@ export class NpcGuardAdapter implements NpcGuardPort {
   async accessResolver(userId: string, roles: string[]): Promise<(npc: Npc) => NpcAccessLevel> {
     if (roles.includes(RMU_ADMIN)) return () => 'manage';
     const levels = await this.realmAccess.levels(userId);
-    return npc => resolveNpcAccess(npc, levels.get(npc.realmId) ?? 'none', roles);
+    return npc => resolveNpcAccessFor(npc, levels, roles);
   }
 
   async buildQueryPredicate(userId: string, roles: string[]): Promise<QueryCriteria> {
     if (roles.includes(RMU_ADMIN)) return QueryCriteria.empty();
-    return QueryCriteria.in('realmId', await this.realmAccess.readableRealmIds(userId));
+    // `realmId: null` also matches documents without the field: the global NPCs.
+    const global = QueryCriteria.eq('realmId', null);
+    const realmIds = await this.realmAccess.readableRealmIds(userId);
+    if (realmIds.length === 0) return global;
+    return QueryCriteria.anyOf([global, QueryCriteria.in('realmId', realmIds)]);
   }
 
   private async require(npc: Npc, userId: string, roles: string[], required: NpcAccess, action: string): Promise<NpcAccess> {
-    const level = (await this.accessResolver(userId, roles))(npc);
+    // A global NPC needs no question to core.
+    const level = npc.realmId ? (await this.accessResolver(userId, roles))(npc) : resolveGlobalNpcAccess(roles);
     if (level !== 'none' && atLeast(level, required)) return level;
     throw new ForbiddenError(`You do not have permission to ${action} this entity`);
   }

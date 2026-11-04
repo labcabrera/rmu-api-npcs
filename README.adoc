@@ -62,6 +62,8 @@ it. Public NPCs are the book catalog (the generic creatures of the RMU Core real
 changed or deleted by `rmu-admin` only, and only `rmu-admin` makes an NPC public. Lists have the NPCs of the realms the
 caller reads, and every response carries `access` (`read`, `write` or `manage`). Creating in a realm without read is a
 400 `realm-not-readable`, with read only a 403 `realm-not-writable`.
+An NPC without realm (`realmId: null`) is global: every user reads and lists it (`access: read`), only `rmu-admin`
+creates, changes or deletes it (`manage`), and creating one without the role is a 403 `global-entity-admin-only`.
 
 The levels come from `GET /v1/realms/access?userId=` of core (service token), asked once per user and kept 30 seconds
 in memory: removing a share takes up to that long to show here. Admins never ask. If core fails, the request fails

@@ -19,7 +19,7 @@ const setup = (levels: Record<string, RealmAccessLevel>) => {
   return { guard: new NpcGuardAdapter(service), levelsOf };
 };
 
-const npc = (realmId: string, accessType: 'public' | 'private' = 'private') =>
+const npc = (realmId: string | null, accessType: 'public' | 'private' = 'private') =>
   Npc.fromProps(npcProps({ realmId, accessType, owner: 'u1' }));
 
 describe('NpcGuardAdapter', () => {
@@ -46,17 +46,38 @@ describe('NpcGuardAdapter', () => {
 
   it('filters the list by the readable realms', async () => {
     const { guard } = setup({ 'r-read': 'read', 'r-manage': 'manage' });
-    await expect(guard.buildQueryPredicate('u2', USER)).resolves.toEqual({ type: 'in', field: 'realmId', values: ['r-read', 'r-manage'] });
+    await expect(guard.buildQueryPredicate('u2', USER)).resolves.toEqual({
+      type: 'anyOf',
+      criteria: [
+        { type: 'eq', field: 'realmId', value: null },
+        { type: 'in', field: 'realmId', values: ['r-read', 'r-manage'] },
+      ],
+    });
+  });
+
+  it('lists only the global NPCs without readable realms', async () => {
+    const { guard } = setup({ 'r-none': 'none' });
+    await expect(guard.buildQueryPredicate('u2', USER)).resolves.toEqual({ type: 'eq', field: 'realmId', value: null });
+  });
+
+  it('lets every user read a global NPC and only an admin change it, without asking core', async () => {
+    const { guard, levelsOf } = setup({});
+    await expect(guard.checkRead(npc(null), 'u1', USER)).resolves.toBe('read');
+    await expect(guard.checkUpdate(npc(null), 'u1', USER)).rejects.toMatchObject({ statusCode: 403, code: 'forbidden' });
+    await expect(guard.checkDelete(npc(null), 'u1', USER)).rejects.toMatchObject({ statusCode: 403, code: 'forbidden' });
+    await expect(guard.checkUpdate(npc(null), 'a', ADMIN)).resolves.toBe('manage');
+    expect(levelsOf).not.toHaveBeenCalled();
   });
 
   it('resolves a whole list with one question', async () => {
     const { guard, levelsOf } = setup({ 'r-read': 'read', 'r-manage': 'manage' });
     const accessOf = await guard.accessResolver('u2', USER);
-    expect([npc('r-read'), npc('r-manage'), npc('r-manage', 'public'), npc('r-none')].map(accessOf)).toEqual([
+    expect([npc('r-read'), npc('r-manage'), npc('r-manage', 'public'), npc('r-none'), npc(null)].map(accessOf)).toEqual([
       'read',
       'write',
       'read',
       'none',
+      'read',
     ]);
     expect(levelsOf).toHaveBeenCalledTimes(1);
   });
