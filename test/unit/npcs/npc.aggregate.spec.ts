@@ -105,4 +105,36 @@ describe('Npc', () => {
     } as never;
     expect(Npc.fromProps(legacy)).toMatchObject({ accessType: 'private', size: 'medium', movement: [], talents: [], frightLevel: null });
   });
+
+  describe('talent trait ids (spec 076)', () => {
+    const talent = (name: string, extra: Record<string, unknown> = {}) => ({ name, tier: null, params: null, dp: null, ...extra });
+
+    it('derives the trait id of the sense talents on create, keeping the tier', () => {
+      const npc = Npc.create(
+        creation({ talents: [talent('Darkvision', { tier: 'II', params: "20'" }), talent('Tremorsense'), talent('Hearing: Cat')] }),
+      );
+      expect(npc.talents).toEqual([
+        { name: 'Darkvision', tier: 'II', params: "20'", dp: null, traitId: 'darkvision' },
+        { name: 'Tremorsense', tier: null, params: null, dp: null, traitId: null },
+        { name: 'Hearing: Cat', tier: null, params: null, dp: null, traitId: 'hearing-cat' },
+      ]);
+    });
+
+    it('recomputes the trait id when the talents are replaced, ignoring a sent one', () => {
+      const npc = Npc.create(creation({ talents: [talent('Nightvision')] }));
+      npc.update({ talents: [talent('Acute smell', { tier: 'III', traitId: 'darkvision' })] });
+      expect(npc.talents).toEqual([{ name: 'Acute smell', tier: 'III', params: null, dp: null, traitId: 'acute-smell' }]);
+    });
+
+    it('keeps the talents when an update does not send them', () => {
+      const npc = Npc.create(creation({ talents: [talent('Nightvision')] }));
+      npc.update({ name: 'Other' });
+      expect(npc.talents[0].traitId).toBe('nightvision');
+    });
+
+    it('derives a missing trait id of a stored talent on read, but keeps a stored one', () => {
+      const npc = Npc.fromProps(npcProps({ talents: [talent('Heatsense'), talent('Sight, eagle', { traitId: null })] }));
+      expect(npc.talents.map(t => t.traitId)).toEqual(['heatsense', null]);
+    });
+  });
 });

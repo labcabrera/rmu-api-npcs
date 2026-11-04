@@ -358,6 +358,17 @@ export class NpcTalentDto implements NpcTalent {
   @ApiPropertyOptional({ type: String, nullable: true }) @IsOptional() @IsString() params: string | null;
   @ApiPropertyOptional({ type: Number, nullable: true }) @IsOptional() @IsNumber() dp: number | null;
 
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    readOnly: true,
+    example: 'nightvision',
+    description: 'Catalog talent id of a sense talent (spec 076), derived from the name on save: a value sent is ignored',
+  })
+  @IsOptional()
+  @IsString()
+  traitId?: string | null;
+
   static toEntity(dto: NpcTalentDto): NpcTalent {
     return { name: dto.name, tier: dto.tier ?? null, params: dto.params ?? null, dp: dto.dp ?? null };
   }

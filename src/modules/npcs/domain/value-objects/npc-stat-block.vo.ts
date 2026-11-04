@@ -122,12 +122,16 @@ export interface NpcDetails {
   misc: string | null;
 }
 
-/** A creature talent or flaw, informational only: no rule applies it yet (spec 054). */
+/**
+ * A creature talent or flaw. Informational (spec 054), except the senses: `traitId` is the catalog talent id that
+ * matches the name (spec 076, C7), derived on save; tactical copies those to the actor traits.
+ */
 export interface NpcTalent {
   name: string;
   tier: string | null;
   params: string | null;
   dp: number | null;
+  traitId?: string | null;
 }
 
 export interface NpcSource {

@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { BaseAggregateRoot } from '../../../shared/domain/aggregates/base-aggregate.js';
 import type { AccessType } from '../../../shared/domain/entities/access-type.js';
 import { ValidationError } from '../../../shared/domain/errors/errors.js';
+import { senseTraitId } from '../../../shared/domain/npc-sense-traits.js';
 import { NpcCreatedEvent, NpcUpdatedEvent } from '../events/npc.events.js';
 import type {
   NpcAttack,
@@ -108,13 +109,16 @@ export class Npc extends BaseAggregateRoot<NpcProps> {
   }
 
   public static create(props: NpcCreationProps): Npc {
-    const npc = new Npc({ ...props, id: randomUUID(), createdAt: new Date(), updatedAt: null });
+    const npc = new Npc({ ...props, talents: Npc.withTraitIds(props.talents), id: randomUUID(), createdAt: new Date(), updatedAt: null });
     npc.validate();
     npc.apply(new NpcCreatedEvent(npc.getProps()));
     return npc;
   }
 
-  /** Stored documents of the old model (before spec 054) may miss the new fields: they get the empty defaults. */
+  /**
+   * Stored documents of the old model (before spec 054) may miss the new fields: they get the empty defaults. Talents
+   * saved before spec 076 get their `traitId` on read too, until migration 077 stores it.
+   */
   public static fromProps(props: NpcProps): Npc {
     return new Npc({
       ...props,
@@ -140,13 +144,18 @@ export class Npc extends BaseAggregateRoot<NpcProps> {
       encounter: props.encounter ?? null,
       stats: props.stats ?? null,
       details: props.details ?? null,
-      talents: props.talents ?? [],
+      talents: (props.talents ?? []).map(t => (t.traitId === undefined ? { ...t, traitId: senseTraitId(t.name) } : t)),
       items: props.items ?? [],
       source: props.source ?? null,
       description: props.description ?? null,
       imageUrl: props.imageUrl ?? null,
       updatedAt: props.updatedAt ?? null,
     });
+  }
+
+  /** Each talent gets the catalog id of its sense, or null (spec 076, C7): derived from the name, never sent. */
+  public static withTraitIds(talents: NpcTalent[]): NpcTalent[] {
+    return (talents ?? []).map(talent => ({ ...talent, traitId: senseTraitId(talent.name) }));
   }
 
   public static emptyCriticalCodes(): NpcCriticalCodes {
@@ -156,6 +165,7 @@ export class Npc extends BaseAggregateRoot<NpcProps> {
   /** The PATCH replaces whole fields: an array sent (attacks, skills…) replaces the stored one. */
   update(props: NpcUpdateProps): void {
     const changes = Object.fromEntries(Object.entries(props).filter(([, value]) => value !== undefined)) as NpcUpdateProps;
+    if (changes.talents) changes.talents = Npc.withTraitIds(changes.talents);
     Object.assign(this, changes);
     this.validate();
     this.updatedAt = new Date();

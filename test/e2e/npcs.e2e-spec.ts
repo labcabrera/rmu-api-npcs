@@ -42,6 +42,19 @@ describe('NPCs', () => {
     expect(event).toMatchObject({ topic: 'internal.rmu-npcs.npc.created.v1', message: { eventType: 'created' } });
   });
 
+  it('derives the trait id of the sense talents on create and returns it on read (spec 076)', async () => {
+    const npc = await create('owner', {
+      talents: [{ name: 'Darkvision', tier: 'II', params: "20'", traitId: 'ignored' }, { name: 'Tremorsense' }],
+    });
+    const expected = [
+      { name: 'Darkvision', tier: 'II', params: "20'", dp: null, traitId: 'darkvision' },
+      { name: 'Tremorsense', tier: null, params: null, dp: null, traitId: null },
+    ];
+    expect(npc.talents).toEqual(expected);
+    const read = await request(e2e.server).get(`/v1/npcs/${npc.id}`).set('Authorization', e2e.auth('owner'));
+    expect((read.body as NpcBody).talents).toEqual(expected);
+  });
+
   it('stores the shield with its DB, the one of its type when it is missing (ADR 0010)', async () => {
     const given = await create('owner', { shield: { type: 'normal', db: 20, ranks: 8, bonus: 60 } });
     expect(given.shield).toEqual({ type: 'normal', db: 20, ranks: 8, bonus: 60 });
