@@ -1,27 +1,78 @@
-import { NpcAttack } from '../value-objects/npc-attack.vo';
-import { NpcCategory } from '../value-objects/npc-category.vo';
-import { NpcItem } from '../value-objects/npc-item.vo';
-import { NpcOutlookType } from '../value-objects/npc-outlook-type.dto';
-import { NpcSkill } from '../value-objects/npc-skill.vo';
+import type { AccessType } from '../../../shared/domain/entities/access-type.js';
+import type {
+  NpcAttack,
+  NpcCriticalCodes,
+  NpcDetails,
+  NpcEncounter,
+  NpcMovement,
+  NpcResistances,
+  NpcRunning,
+  NpcShield,
+  NpcSkill,
+  NpcSource,
+  NpcStats,
+  NpcTalent,
+} from '../value-objects/npc-stat-block.vo.js';
+import type { CreatureSize, LevelSpread, NpcArchetype, NpcCategory, NpcOutlookType } from '../value-objects/npc-types.vo.js';
 
+export interface NpcItem {
+  name: string;
+  itemTypeId: string | null;
+  amount: number;
+}
+
+/** An NPC or creature: the Combat Stat Block of Creature Law (spec 054) plus ownership and presentation. */
 export interface NpcProps {
   id: string;
-  realmId: string;
-  category: NpcCategory;
-  outlookType: NpcOutlookType;
+  /** The realm decides who reads and writes the NPC (spec 073); null is a global NPC: read by all, admin managed. */
+  realmId: string | null;
+  /** Public NPCs are the book catalog: only admins write them (spec 054); visibility is the realm's (spec 073). */
+  accessType: AccessType;
   name: string;
+  category: NpcCategory;
+  /** The book section (`carnivore`, `reptile`…), free text. */
+  type: string | null;
+  /** The group of the section (`bear`, `wolf`…), free text. */
+  group: string | null;
   level: number;
+  levelSpread: LevelSpread | null;
+  outlookType: NpcOutlookType | null;
+  /** Fright level of the creature (0-30): the base of a fear check it causes (spec 068, decision 17). */
+  frightLevel: number | null;
+  archetype: NpcArchetype | null;
+  movement: NpcMovement[];
+  /** Endurance: rounds of exertion before fatigue checks. */
+  endurance: number | null;
+  size: CreatureSize;
+  /** Size used for criticals, when it differs from the size. */
+  criticalSize: CreatureSize | null;
+  criticalCodes: NpcCriticalCodes;
   hp: number;
-  db: number;
+  /** Hit total at which the creature dies (the value in parentheses of the Hits column). */
+  deathHits: number | null;
   at: number;
+  db: number;
+  running: NpcRunning | null;
+  shield: NpcShield | null;
   initiative: number;
-  endurance: number;
-  skills: NpcSkill[];
-  items: NpcItem[];
   attacks: NpcAttack[];
-  description: string | undefined;
-  imageUrl: string | undefined;
+  powerPoints: number | null;
+  resistances: NpcResistances | null;
+  skills: NpcSkill[];
+  encounter: NpcEncounter | null;
+  stats: NpcStats | null;
+  details: NpcDetails | null;
+  talents: NpcTalent[];
+  items: NpcItem[];
+  source: NpcSource | null;
+  description: string | null;
+  imageUrl: string | null;
+  /** Who created it: it gives no permission (spec 073). */
   owner: string;
   createdAt: Date;
-  updatedAt: Date | undefined;
+  updatedAt: Date | null;
 }
+
+export type NpcCreationProps = Omit<NpcProps, 'id' | 'createdAt' | 'updatedAt'>;
+
+export type NpcUpdateProps = Partial<Omit<NpcProps, 'id' | 'realmId' | 'owner' | 'source' | 'createdAt' | 'updatedAt'>>;
